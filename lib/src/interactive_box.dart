@@ -40,6 +40,8 @@ class InteractiveBox extends StatefulWidget {
     this.rotateIcon = const Icon(Icons.rotate_right),
     this.deleteIcon = const Icon(Icons.delete),
     this.cancelIcon = const Icon(Icons.cancel),
+    this.rotateIndicator,
+    this.rotateIndicatorSpacing,
     this.initialRotateAngle = 0.0,
     this.initialX = 0.0,
     this.initialY = 0.0,
@@ -102,6 +104,9 @@ class InteractiveBox extends StatefulWidget {
   final Widget deleteIcon;
   final Widget cancelIcon;
 
+  final Widget? rotateIndicator;
+  final double? rotateIndicatorSpacing;
+
   final Color scaleDotColor;
   final Color overScaleDotColor;
   // final Widget? dot;
@@ -118,7 +123,6 @@ class InteractiveBoxState extends State<InteractiveBox> {
   bool _isPerforming = false;
   double _x = 0.0;
   double _y = 0.0;
-  double _rotateAngle = 0.0;
   ControlActionType _selectedAction = ControlActionType.none;
 
   @override
@@ -130,7 +134,6 @@ class InteractiveBoxState extends State<InteractiveBox> {
     _y = widget.initialY;
     _width = widget.initialWidth;
     _height = widget.initialHeight;
-    _rotateAngle = widget.initialRotateAngle;
   }
 
   @override
@@ -198,13 +201,15 @@ class InteractiveBoxState extends State<InteractiveBox> {
     // Rotating
     if (widget.includedActions.contains(ControlActionType.rotate)) {
       child = RotatableItem(
+        rotateIndicatorSpacing: widget.rotateIndicatorSpacing,
+        rotateIndicator: widget.rotateIndicator,
         showRotatingIcon: isRotating,
-        angle: _rotateAngle,
-        onRotating: (details) {
-          _onRotating(details);
+        initialRotateAngle: widget.initialRotateAngle,
+        onRotating: (_) {
+          _toggleIsPerforming(true);
         },
-        onPanEnd: (details) {
-          _onMovingEnd(details);
+        onRotatingEnd: (_) {
+          _toggleIsPerforming(false);
         },
         child: child,
       );
@@ -479,21 +484,5 @@ class InteractiveBoxState extends State<InteractiveBox> {
     if (widget.maxHeight == null) return false;
 
     return height >= widget.maxHeight!;
-  }
-
-  void _onRotating(DragUpdateDetails update) {
-    // only update when actiontype is rotate
-    if (_selectedAction != ControlActionType.rotate) {
-      return;
-    }
-
-    _toggleIsPerforming(true);
-
-    final touchedPosition = update.localPosition;
-
-    // apply rotating logic
-    setState(() {
-      _rotateAngle = touchedPosition.direction;
-    });
   }
 }
