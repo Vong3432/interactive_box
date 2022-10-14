@@ -86,8 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return InteractiveBox(
       initialWidth: width,
       initialHeight: height,
-      // maxWidth: maxWidth,
-      // maxHeight: maxHeight,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight,
       initialX: xPosition,
       initialY: yPosition,
       initialRotateAngle: rotate,

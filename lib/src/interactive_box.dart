@@ -406,15 +406,13 @@ class InteractiveBoxState extends State<InteractiveBox>
 
         break;
       case ScaleDirection.topLeft:
-        double mid = (dx + dy) / 2;
-
-        double newHeight = updatedHeight - (2 * mid);
-        double newWidth = updatedWidth - (2 * mid);
+        double newHeight = updatedHeight -= dy;
+        double newWidth = updatedWidth - dx;
 
         updatedHeight = newHeight > 0 ? newHeight : 0;
         updatedWidth = newWidth > 0 ? newWidth : 0;
-        updatedXPosition = updatedXPosition + mid;
-        updatedYPosition = updatedYPosition + mid;
+        updatedYPosition += dy;
+        updatedXPosition += dx;
 
         break;
 
@@ -426,28 +424,23 @@ class InteractiveBoxState extends State<InteractiveBox>
         break;
 
       case ScaleDirection.topRight:
-        double mid = (dx + (dy * -1)) / 2;
-
-        double newHeight = updatedHeight + 2 * mid;
-        double newWidth = updatedWidth + 2 * mid;
+        double newHeight = updatedHeight -= dy;
+        double newWidth = updatedWidth + dx;
 
         updatedHeight = newHeight > 0 ? newHeight : 0;
         updatedWidth = newWidth > 0 ? newWidth : 0;
-        updatedXPosition = updatedXPosition - mid;
-        updatedYPosition = updatedYPosition - mid;
+        updatedYPosition += dy;
 
         break;
 
       case ScaleDirection.bottomLeft:
-        double mid = ((dx * -1) + dy) / 2;
+        double newHeight = updatedHeight + dy;
+        double newWidth = updatedWidth - dx;
 
-        double newHeight = updatedHeight + 2 * mid;
-        double newWidth = updatedWidth + 2 * mid;
-
-        updatedHeight = newHeight > 0 ? newHeight : 0;
         updatedWidth = newWidth > 0 ? newWidth : 0;
-        updatedXPosition = updatedXPosition - mid;
-        updatedYPosition = updatedYPosition - mid;
+        updatedHeight = newHeight > 0 ? newHeight : 0;
+
+        updatedXPosition += dx;
 
         break;
       case ScaleDirection.bottomCenter:
@@ -456,15 +449,11 @@ class InteractiveBoxState extends State<InteractiveBox>
 
         break;
       case ScaleDirection.bottomRight:
-        double mid = (dx + dy) / 2;
+        double newHeight = updatedHeight + dy;
+        double newWidth = updatedWidth + dx;
 
-        double newHeight = updatedHeight + 2 * mid;
-        double newWidth = updatedWidth + 2 * mid;
-
-        updatedHeight = newHeight > 0 ? newHeight : 0;
         updatedWidth = newWidth > 0 ? newWidth : 0;
-        updatedXPosition = updatedXPosition - mid;
-        updatedYPosition = updatedYPosition - mid;
+        updatedHeight = newHeight > 0 ? newHeight : 0;
 
         break;
       default:
