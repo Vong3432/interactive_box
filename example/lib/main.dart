@@ -64,30 +64,30 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  double xPosition = 150.0; // default should be 0
-  double yPosition = 150.0; // default should be 0
-  double width = 500;
+  double xPosition = 100.0; // default should be 0
+  double yPosition = 100.0; // default should be 0
+  double width = 150;
   double height = 150;
-  double maxWidth = 500;
-  double maxHeight = 500;
-  double rotate = 45;
+  double maxWidth = 200;
+  double maxHeight = 200;
+  double rotate = 0;
 
   final ScrollController controller = ScrollController();
 
   @override
   void initState() {
-    xPosition = xPosition + (widget.i * 100);
-    yPosition = yPosition + (widget.i * 100);
+    xPosition = xPosition + (widget.i * 10);
+    yPosition = yPosition + (widget.i * 10);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isOverScale = width >= maxWidth && height >= maxHeight;
-
     return InteractiveBox(
       initialWidth: width,
       initialHeight: height,
+      // maxWidth: maxWidth,
+      // maxHeight: maxHeight,
       initialX: xPosition,
       initialY: yPosition,
       initialRotateAngle: rotate,
@@ -99,18 +99,24 @@ class _MyHomePageState extends State<MyHomePage> {
         // ControlActionType.delete,
         ControlActionType.move,
       ],
-      circularMenuSpreadMultiplier: 1,
-      circularMenuDegree: 180,
+      // circularMenuSpreadMultiplier: 1,
+      circularMenuDegree: 230,
       circularMenuIconColor: Colors.green,
       initialShowActionIcons: false,
-      // iconSize: 40,
-      showOverscaleBorder: isOverScale,
-      scaleDotColor: Colors.grey[600]!,
-      overScaleDotColor: Colors.redAccent,
+      iconSize: 40,
+      scaleDotColor: Colors.purple[600]!,
+      overScaleDotColor: Colors.red[400]!,
+      defaultScaleBorderDecoration: BoxDecoration(
+        border: Border.all(
+          width: 5,
+          color: Colors.purple[700]!,
+        ),
+        shape: BoxShape.rectangle,
+      ),
       overScaleBorderDecoration: BoxDecoration(
         border: Border.all(
           width: 5,
-          color: isOverScale ? Colors.red : Colors.grey[300]!,
+          color: Colors.red[700]!,
         ),
         shape: BoxShape.rectangle,
       ),

@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../consts/scale_item.const.dart';
 
@@ -6,7 +5,7 @@ class ScalableItem extends StatelessWidget {
   const ScalableItem({
     super.key,
     required this.child,
-    required this.showDots,
+    required this.showCornerDots,
     // this.dot,
     this.showOverScaleBorder = false,
     this.onBottomLeftDotDragging,
@@ -17,19 +16,21 @@ class ScalableItem extends StatelessWidget {
     this.onTopRightDotDragging,
     this.onCenterLeftDotDragging,
     this.onCenterRightDotDragging,
-    this.scaleDotColor = defaultDotColor,
-    this.overScaleDotColor = defaultOverscaleDotColor,
+    this.cornerDotColor = defaultDotColor,
+    this.overScaleCornerDotColor = defaultOverscaleDotColor,
     this.onAnyDotDraggingEnd,
     this.overScaleBorderDecoration,
+    this.defaultScaleBorderDecoration,
   });
 
   final Widget child;
   // final Widget? dot;
-  final Color scaleDotColor;
-  final Color overScaleDotColor;
-  final bool showDots;
+  final Color cornerDotColor;
+  final Color overScaleCornerDotColor;
+  final bool showCornerDots;
   final bool showOverScaleBorder;
   final Decoration? overScaleBorderDecoration;
+  final Decoration? defaultScaleBorderDecoration;
   final Function(DragUpdateDetails)? onTopLeftDotDragging;
   final Function(DragUpdateDetails)? onTopCenterDotDragging;
   final Function(DragUpdateDetails)? onTopRightDotDragging;
@@ -42,25 +43,43 @@ class ScalableItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color computedDotColor = showDots
+    final Color computedDotColor = showCornerDots
         ? showOverScaleBorder
-            ? overScaleDotColor
-            : scaleDotColor
+            ? overScaleCornerDotColor
+            : cornerDotColor
         : Colors.transparent;
+
+    final Decoration localOverScaleBorderDecoration =
+        overScaleBorderDecoration ??
+            BoxDecoration(
+              border: Border.all(
+                width: 5,
+                color: computedDotColor,
+              ),
+              shape: BoxShape.rectangle,
+            );
+
+    final Decoration localDefaultScaleBorderDecoration =
+        defaultScaleBorderDecoration ??
+            BoxDecoration(
+              border: Border.all(
+                width: 5,
+                color: Colors.grey[100]!,
+              ),
+              shape: BoxShape.rectangle,
+            );
+
+    final Decoration borderDecoration = showOverScaleBorder
+        ? localOverScaleBorderDecoration
+        : localDefaultScaleBorderDecoration;
 
     return Stack(
       fit: StackFit.passthrough,
       children: [
+        // child
         Positioned.fill(
           child: Container(
-            decoration: overScaleBorderDecoration ??
-                BoxDecoration(
-                  border: Border.all(
-                    width: 2,
-                    color: computedDotColor,
-                  ),
-                  shape: BoxShape.rectangle,
-                ),
+            decoration: borderDecoration,
             child: child,
           ),
         ),

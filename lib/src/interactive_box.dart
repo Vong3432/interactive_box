@@ -14,7 +14,7 @@ import 'extensions/iterable.dart' show IterableDistinctExt;
 
 /// A widget that can write support custom logic for controllable actions from [ControlActionType].
 class InteractiveBox extends StatefulWidget {
-  const InteractiveBox({
+  InteractiveBox({
     Key? key,
     required this.child,
     required this.initialWidth,
@@ -31,9 +31,10 @@ class InteractiveBox extends StatefulWidget {
     this.initialShowActionIcons = false,
     this.hideActionIconsWhenInteracting = true,
     this.circularMenuDegree,
-    this.circularMenuSpreadMultiplier = defaultSpreadDistanceMultiplier,
+    // this.circularMenuSpreadMultiplier = defaultSpreadDistanceMultiplier,
     this.showOverscaleBorder = false,
     this.overScaleBorderDecoration,
+    this.defaultScaleBorderDecoration,
     this.iconSize = defaultIconSize,
     this.circularMenuIconColor = defaultMenuIconColor,
     this.copyIcon = const Icon(Icons.copy),
@@ -45,18 +46,19 @@ class InteractiveBox extends StatefulWidget {
     this.initialX = 0.0,
     this.initialY = 0.0,
     this.onActionSelected,
-    this.onRotating,
-    this.onPanUpdate,
-    this.onScaling,
-    this.onPanEnd,
     this.scaleDotColor = defaultDotColor,
     this.overScaleDotColor = defaultOverscaleDotColor,
     // this.dot,
-  }) : super(key: key);
+  })  : assert(includedActions.distinct().length == includedActions.length,
+            "Duplicated items found in [includedAction] property."),
+        super(key: key);
 
   /// Whether the border should show a border when overscaled.
   final bool showOverscaleBorder;
   final Decoration? overScaleBorderDecoration;
+
+  /// Default decoration for scale border
+  final Decoration? defaultScaleBorderDecoration;
 
   final bool initialShowActionIcons;
 
@@ -66,13 +68,18 @@ class InteractiveBox extends StatefulWidget {
   /// - [ControlActionType.rotate]
   /// - [ControlActionType.scale]
   /// - [ControlActionType.move]
+  ///
   final bool hideActionIconsWhenInteracting;
 
   final double initialX;
   final double initialY;
   final double initialWidth;
   final double initialHeight;
+
+  /// The maximum width that the [child] can be scaled
   final double? maxWidth;
+
+  /// The maximum height that the [child] can be scaled
   final double? maxHeight;
 
   /// The rotate angle for [child].
@@ -82,24 +89,14 @@ class InteractiveBox extends StatefulWidget {
   final List<ControlActionType> includedActions;
   final Widget child;
 
-  /// The required degree needed for the circular menu.
+  /// The full degree wanted for the circular menu.
   final double? circularMenuDegree;
 
   /// Distance of the spread distance between the [child] and the circular menu.
-  final double circularMenuSpreadMultiplier;
+  // final double circularMenuSpreadMultiplier;
 
   /// A callback whenever an action (by pressing icon) is selected
   final ActionSelectedCallback? onActionSelected;
-  final ScalingCallback? onScaling;
-  final RotatingCallback? onRotating;
-
-  /// A function that will be called when the [child] in property is being moved.
-  ///
-  /// The [DragUpdateDetails] object will also be affected if the [child] is rotated.
-  final void Function(DragUpdateDetails)? onPanUpdate;
-
-  /// A function that will be called when the [child] in property stop moving.
-  final void Function(DragEndDetails)? onPanEnd;
 
   final Color circularMenuIconColor;
   final double iconSize;
@@ -156,104 +153,84 @@ class InteractiveBoxState extends State<InteractiveBox>
   Widget build(BuildContext context) {
     final bool isRotating = _selectedAction == ControlActionType.rotate;
     final bool isScaling = _selectedAction == ControlActionType.scale;
+    final bool isOverScale =
+        _isWidthOverscale(_width) && _isHeightOverscale(_height);
 
     Widget child = widget.child;
 
     /// Build widget tree of [child] from the bottom to the top.
     ///
-    /// Stack > Position > Rotate > Widget
-    /// https://stackoverflow.com/a/67963491
+    /// Widget order matters.
+    ///
+    /// For instance, if we do Scaling > Rotating, then the widget will be rotated but the scaling
+    /// dots and borders will not be rotated.
+    ///
+    /// (From Top to Bottom, Gesture is the Top.)
+    /// - GestureDetector > MultipleCircularMenu > Rotating > Scaling
+    ///
     ///
 
-    // Scaling
+    // Scaling, this is the bottomest.
     if (widget.includedActions.contains(ControlActionType.scale)) {
       child = ScalableItem(
         // dot: widget.dot,
-        scaleDotColor: widget.scaleDotColor,
-        overScaleDotColor: widget.overScaleDotColor,
+        cornerDotColor: widget.scaleDotColor,
+        overScaleCornerDotColor: widget.overScaleDotColor,
         overScaleBorderDecoration: widget.overScaleBorderDecoration,
-        showOverScaleBorder: widget.showOverscaleBorder,
+        defaultScaleBorderDecoration: widget.defaultScaleBorderDecoration,
+        showOverScaleBorder: isOverScale,
         onAnyDotDraggingEnd: (details) {
-          _toggleIsPerforming(false);
-
-          if (widget.onPanEnd != null) {
-            widget.onPanEnd!(details);
-          } else {
-            _onMovingEnd(details);
-          }
+          _onMovingEnd(details);
         },
         onTopLeftDotDragging: (details) {
-          if (widget.onScaling != null) {
-            widget.onScaling!(details, ScaleDirection.topLeft);
-          } else {
-            _onScaling(details, ScaleDirection.topLeft);
-          }
-          _toggleIsPerforming(true);
+          _onScaling(details, ScaleDirection.topLeft);
         },
         onTopCenterDotDragging: (details) {
-          if (widget.onScaling != null) {
-            widget.onScaling!(details, ScaleDirection.topCenter);
-          } else {
-            _onScaling(details, ScaleDirection.topCenter);
-          }
-          _toggleIsPerforming(true);
+          _onScaling(details, ScaleDirection.topCenter);
         },
         onTopRightDotDragging: (details) {
-          if (widget.onScaling != null) {
-            widget.onScaling!(details, ScaleDirection.topRight);
-          } else {
-            _onScaling(details, ScaleDirection.topRight);
-          }
-          _toggleIsPerforming(true);
+          _onScaling(details, ScaleDirection.topRight);
         },
         onBottomLeftDotDragging: (details) {
-          if (widget.onScaling != null) {
-            widget.onScaling!(details, ScaleDirection.bottomLeft);
-          } else {
-            _onScaling(details, ScaleDirection.bottomLeft);
-          }
-          _toggleIsPerforming(true);
+          _onScaling(details, ScaleDirection.bottomLeft);
         },
         onBottomCenterDotDragging: (details) {
-          if (widget.onScaling != null) {
-            widget.onScaling!(details, ScaleDirection.bottomCenter);
-          } else {
-            _onScaling(details, ScaleDirection.bottomCenter);
-          }
-          _toggleIsPerforming(true);
+          _onScaling(details, ScaleDirection.bottomCenter);
         },
         onBottomRightDotDragging: (details) {
-          if (widget.onScaling != null) {
-            widget.onScaling!(details, ScaleDirection.bottomRight);
-          } else {
-            _onScaling(details, ScaleDirection.bottomRight);
-          }
-          _toggleIsPerforming(true);
+          _onScaling(details, ScaleDirection.bottomRight);
         },
         onCenterLeftDotDragging: (details) {
-          if (widget.onScaling != null) {
-            widget.onScaling!(details, ScaleDirection.centerLeft);
-          } else {
-            _onScaling(details, ScaleDirection.centerLeft);
-          }
-          _toggleIsPerforming(true);
+          _onScaling(details, ScaleDirection.centerLeft);
         },
         onCenterRightDotDragging: (details) {
-          if (widget.onScaling != null) {
-            widget.onScaling!(details, ScaleDirection.centerRight);
-          } else {
-            _onScaling(details, ScaleDirection.centerRight);
-          }
-          _toggleIsPerforming(true);
+          _onScaling(details, ScaleDirection.centerRight);
         },
-        showDots: isScaling,
+        showCornerDots: isScaling,
+        child: child,
+      );
+    }
+
+    // Rotating
+    if (widget.includedActions.contains(ControlActionType.rotate)) {
+      child = RotatableItem(
+        showRotatingIcon: isRotating,
+        angle: _rotateAngle,
+        onRotating: (details) {
+          _onRotating(details);
+        },
+        onPanEnd: (details) {
+          _onMovingEnd(details);
+        },
         child: child,
       );
     }
 
     child = MultipleCircularMenu(
+      x: _x,
+      y: _y,
       degree: widget.circularMenuDegree ?? defaultCircularMenuDegree,
-      spreadDistanceMultiplier: widget.circularMenuSpreadMultiplier,
+      // spreadDistanceMultiplier: widget.circularMenuSpreadMultiplier,
       iconSize: widget.iconSize,
       childWidth: _width,
       childHeight: _height,
@@ -262,111 +239,35 @@ class InteractiveBoxState extends State<InteractiveBox>
       child: child,
     );
 
-    // Rotating
-    if (widget.includedActions.contains(ControlActionType.rotate)) {
-      child = RotatableItem(
-        showRotatingIcon: isRotating,
-        angle: _rotateAngle,
-        onRotating: (details) {
-          if (widget.onRotating != null) {
-            widget.onRotating!(details);
-          } else {
-            _onRotating(details);
+    /// Here is the topest in the widget tree of [child]
+    child = SizedBox.expand(
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          if (!widget.includedActions.contains(ControlActionType.move)) {
+            return;
           }
-          _toggleIsPerforming(true);
+
+          _onMoving(details);
         },
         onPanEnd: (details) {
-          if (widget.onPanEnd != null) {
-            widget.onPanEnd!(details);
-          } else {
-            _onMovingEnd(details);
+          if (!widget.includedActions.contains(ControlActionType.move)) {
+            return;
           }
-          _toggleIsPerforming(false);
+
+          _onMovingEnd(details);
+        },
+        onTap: () {
+          setState(() {
+            _showItems = !_showItems;
+          });
+
+          if (_showItems) {
+            menuAnimationController.reverse();
+          } else {
+            menuAnimationController.forward();
+          }
         },
         child: child,
-      );
-    }
-
-    /// Here is the topest in the widget tree of [child]
-    child = Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: Colors.red,
-      constraints: BoxConstraints.loose(
-        /// Take the bigger size from width/height to handle rotation.
-        ///
-        /// By taking bigger size, we can make sure the [child] will always be inside of the "container" so that
-        /// we can tap the buttons, dots around the [child].
-        ///
-        Size(
-          // _width >= _height
-          //     ? _width + (_width / 2) + widget.iconSize
-          //     : _height + (_height / 2) + widget.iconSize,
-          // _width >= _height
-          //     ? _width + (_width / 2) + widget.iconSize
-          //     : _height + (_height / 2) + widget.iconSize,
-          _width + (_height) + widget.iconSize,
-          _height + (_width) + widget.iconSize,
-        ),
-      ),
-      transform: Matrix4.identity()
-        ..translate(
-          _x,
-          _y,
-        ),
-      child: Stack(
-        alignment: Alignment.center,
-        fit: StackFit.passthrough,
-        children: [
-          GestureDetector(
-            onPanUpdate: (details) {
-              if (!widget.includedActions.contains(ControlActionType.move))
-                return;
-
-              if (widget.onPanUpdate != null) {
-                widget.onPanUpdate!(details);
-              } else {
-                _onMoving(details);
-              }
-
-              _toggleIsPerforming(true);
-            },
-            onPanEnd: (details) {
-              if (!widget.includedActions.contains(ControlActionType.move))
-                return;
-
-              if (widget.onPanEnd != null) {
-                widget.onPanEnd!(details);
-              } else {
-                _onMovingEnd(details);
-              }
-              _toggleIsPerforming(false);
-            },
-            onTap: () {
-              setState(() {
-                _showItems = !_showItems;
-              });
-
-              if (_showItems) {
-                menuAnimationController.reverse();
-              } else {
-                menuAnimationController.forward();
-              }
-            },
-            child: child,
-          ),
-          Flow(
-            delegate: MultipleCircularMenuFlowDelegate(
-              iconSize: widget.iconSize,
-              menuAnimation: menuAnimationController,
-              containerWidth: _width,
-              containerHeight: _height,
-              degree: widget.circularMenuDegree ?? 0,
-              spreadDistanceMultiplier: widget.circularMenuSpreadMultiplier,
-            ),
-            children: _buildActionItems(),
-          ),
-        ],
       ),
     );
 
@@ -375,6 +276,7 @@ class InteractiveBoxState extends State<InteractiveBox>
 
   void _toggleIsPerforming(bool perform) {
     if (!perform) {
+      // Make selectedAction to none again when users released
       setState(() {
         _selectedAction = ControlActionType.none;
       });
@@ -389,7 +291,6 @@ class InteractiveBoxState extends State<InteractiveBox>
 
   List<Widget> _buildActionItems() {
     List<ControlActionType> unique = widget.includedActions
-        .distinct()
         .where((element) => element != ControlActionType.move)
         .toList();
 
@@ -425,6 +326,7 @@ class InteractiveBoxState extends State<InteractiveBox>
           iconSize: widget.iconSize,
           icon: icon,
           onPressed: () {
+            _toggleIsPerforming(true);
             setState(() {
               _selectedAction = actionType;
             });
@@ -440,13 +342,17 @@ class InteractiveBoxState extends State<InteractiveBox>
 
   /// Users can only be allowed to interact with the controllable item before releasing the cursor.
   /// Once it is released, no more interaction.
-  void _onMovingEnd(DragEndDetails details) {}
+  void _onMovingEnd(DragEndDetails details) {
+    _toggleIsPerforming(false);
+  }
 
   void _onMoving(DragUpdateDetails update) {
     // only moving when actiontype is none
     if (_selectedAction != ControlActionType.none) {
       return;
     }
+
+    _toggleIsPerforming(true);
 
     double updatedXPosition = _x;
     double updatedYPosition = _y;
@@ -469,6 +375,8 @@ class InteractiveBoxState extends State<InteractiveBox>
       return;
     }
 
+    _toggleIsPerforming(true);
+
     double dx = update.delta.dx;
     double dy = update.delta.dy;
 
@@ -477,7 +385,8 @@ class InteractiveBoxState extends State<InteractiveBox>
     double updatedXPosition = _x;
     double updatedYPosition = _y;
 
-    /// Scale formula
+    ///
+    /// Scale widget from corners calculation
     ///
     /// ref: https://stackoverflow.com/a/60964980
     /// Author: @Kherel
@@ -493,7 +402,6 @@ class InteractiveBoxState extends State<InteractiveBox>
 
       case ScaleDirection.centerRight:
         double newWidth = updatedWidth + dx;
-
         updatedWidth = newWidth > 0 ? newWidth : 0;
 
         break;
@@ -507,12 +415,14 @@ class InteractiveBoxState extends State<InteractiveBox>
         updatedWidth = newWidth > 0 ? newWidth : 0;
         updatedXPosition = updatedXPosition + mid;
         updatedYPosition = updatedYPosition + mid;
+
         break;
 
       case ScaleDirection.topCenter:
-        double newHeight = updatedHeight - dy;
+        double newHeight = updatedHeight -= dy;
         updatedHeight = newHeight > 0 ? newHeight : 0;
         updatedYPosition += dy;
+
         break;
 
       case ScaleDirection.topRight:
@@ -525,6 +435,7 @@ class InteractiveBoxState extends State<InteractiveBox>
         updatedWidth = newWidth > 0 ? newWidth : 0;
         updatedXPosition = updatedXPosition - mid;
         updatedYPosition = updatedYPosition - mid;
+
         break;
 
       case ScaleDirection.bottomLeft:
@@ -556,29 +467,29 @@ class InteractiveBoxState extends State<InteractiveBox>
         updatedYPosition = updatedYPosition - mid;
 
         break;
-
       default:
     }
 
-    if (widget.maxWidth != null) {
-      bool widthOverflow = updatedWidth >= widget.maxWidth!;
-
-      if (widthOverflow) {
-        updatedWidth = widthOverflow ? widget.maxWidth! : updatedWidth;
-        updatedXPosition = _x;
-        updatedYPosition = _y;
-      }
+    if (_isWidthOverscale(updatedWidth)) {
+      updatedXPosition = _x;
+      updatedYPosition = _y;
+      updatedWidth = widget.maxWidth!;
     }
 
-    if (widget.maxHeight != null) {
-      bool heightOverflow = updatedHeight >= widget.maxHeight!;
-
-      if (heightOverflow) {
-        updatedHeight = heightOverflow ? widget.maxHeight! : updatedHeight;
-        updatedXPosition = _x;
-        updatedYPosition = _y;
-      }
+    if (_isHeightOverscale(updatedHeight)) {
+      updatedXPosition = _x;
+      updatedYPosition = _y;
+      updatedHeight = widget.maxHeight!;
     }
+
+    // debugPrint("""
+    //   x: $updatedXPosition,
+    //   y: $updatedYPosition,
+    //   w: $updatedWidth,
+    //   h: $updatedHeight,
+    //   dx: $dx,
+    //   dy: $dy
+    // """);
 
     setState(() {
       _width = updatedWidth;
@@ -588,11 +499,25 @@ class InteractiveBoxState extends State<InteractiveBox>
     });
   }
 
+  bool _isWidthOverscale(double width) {
+    if (widget.maxWidth == null) return false;
+
+    return width >= widget.maxWidth!;
+  }
+
+  bool _isHeightOverscale(double height) {
+    if (widget.maxHeight == null) return false;
+
+    return height >= widget.maxHeight!;
+  }
+
   void _onRotating(DragUpdateDetails update) {
     // only update when actiontype is rotate
     if (_selectedAction != ControlActionType.rotate) {
       return;
     }
+
+    _toggleIsPerforming(true);
 
     final touchedPosition = update.localPosition;
 
@@ -602,7 +527,3 @@ class InteractiveBoxState extends State<InteractiveBox>
     });
   }
 }
-
-/// TODO:
-/// - Scaling
-/// - Overscaled border
