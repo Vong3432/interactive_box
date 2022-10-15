@@ -59,10 +59,13 @@ class _MultipleCircularMenuState extends State<MultipleCircularMenu>
     }
   }
 
-  /// The duration of the controller is configured from a property, [initialShowActionIcons] in the MultipleCircularMenu widget;
-  /// as that changes, the State.didUpdateWidget method is used to update the controller.
+  /// The controller state is controlled based on the class parameter, (i.e, [showItems]);
   ///
-  /// Ref: https://api.flutter.dev/flutter/animation/AnimationController-class.html
+  /// Whenever [showItems] changes, this [didUpdateWidget] method will be called
+  /// and run the animation to show/hide the circular menu items.
+  ///
+  /// ref: https://api.flutter.dev/flutter/animation/AnimationController-class.html
+  ///
   @override
   void didUpdateWidget(covariant MultipleCircularMenu oldWidget) {
     super.didUpdateWidget(oldWidget);

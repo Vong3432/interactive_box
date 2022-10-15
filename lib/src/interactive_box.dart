@@ -10,11 +10,9 @@ import 'widgets/internal/multiple_circular_menu.dart';
 import 'widgets/internal/rotatable_item.dart';
 import 'widgets/internal/scalable_item.dart';
 
-import 'extensions/iterable.dart' show IterableDistinctExt;
-
-/// A widget that can write support custom logic for controllable actions from [ControlActionType].
+/// A widget that supports controllable actions from [ControlActionType].
 class InteractiveBox extends StatefulWidget {
-  InteractiveBox({
+  const InteractiveBox({
     Key? key,
     required this.child,
     required this.initialWidth,
@@ -49,9 +47,7 @@ class InteractiveBox extends StatefulWidget {
     this.scaleDotColor = defaultDotColor,
     this.overScaleDotColor = defaultOverscaleDotColor,
     // this.dot,
-  })  : assert(includedActions.distinct().length == includedActions.length,
-            "Duplicated items found in [includedAction] property."),
-        super(key: key);
+  }) : super(key: key);
 
   /// Whether the border should show a border when overscaled.
   final bool showOverscaleBorder;
@@ -114,8 +110,7 @@ class InteractiveBox extends StatefulWidget {
   InteractiveBoxState createState() => InteractiveBoxState();
 }
 
-class InteractiveBoxState extends State<InteractiveBox>
-    with SingleTickerProviderStateMixin {
+class InteractiveBoxState extends State<InteractiveBox> {
   late bool _showItems;
   late double _width;
   late double _height;
@@ -125,8 +120,6 @@ class InteractiveBoxState extends State<InteractiveBox>
   double _y = 0.0;
   double _rotateAngle = 0.0;
   ControlActionType _selectedAction = ControlActionType.none;
-
-  late AnimationController menuAnimationController;
 
   @override
   void initState() {
@@ -138,15 +131,6 @@ class InteractiveBoxState extends State<InteractiveBox>
     _width = widget.initialWidth;
     _height = widget.initialHeight;
     _rotateAngle = widget.initialRotateAngle;
-
-    menuAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 150),
-      vsync: this,
-    );
-
-    if (_showItems) {
-      menuAnimationController.forward();
-    }
   }
 
   @override
@@ -260,12 +244,6 @@ class InteractiveBoxState extends State<InteractiveBox>
           setState(() {
             _showItems = !_showItems;
           });
-
-          if (_showItems) {
-            menuAnimationController.reverse();
-          } else {
-            menuAnimationController.forward();
-          }
         },
         child: child,
       ),
@@ -291,7 +269,10 @@ class InteractiveBoxState extends State<InteractiveBox>
 
   List<Widget> _buildActionItems() {
     List<ControlActionType> unique = widget.includedActions
-        .where((element) => element != ControlActionType.move)
+        .toSet()
+        .where((element) =>
+            element !=
+            ControlActionType.move) // since we will not show icon for move
         .toList();
 
     return List.generate(
