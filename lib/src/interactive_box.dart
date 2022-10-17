@@ -24,6 +24,7 @@ class InteractiveBox extends StatefulWidget {
       ControlActionType.delete,
       ControlActionType.rotate,
       ControlActionType.scale,
+      ControlActionType.move,
       ControlActionType.none
     ],
     this.initialShowActionIcons = false,
@@ -285,11 +286,13 @@ class InteractiveBoxState extends State<InteractiveBox> {
       (index) {
         ControlActionType actionType = unique[index];
 
+        bool isInteractiveAction = true;
         Widget? icon;
 
         switch (actionType) {
           case ControlActionType.copy:
             icon = widget.copyIcon;
+            isInteractiveAction = false;
             break;
           case ControlActionType.scale:
             icon = widget.scaleIcon;
@@ -298,9 +301,11 @@ class InteractiveBoxState extends State<InteractiveBox> {
             icon = widget.rotateIcon;
             break;
           case ControlActionType.delete:
+            isInteractiveAction = false;
             icon = widget.deleteIcon;
             break;
           case ControlActionType.none:
+            isInteractiveAction = false;
             icon = widget.cancelIcon;
             break;
           case ControlActionType.move:
@@ -312,12 +317,21 @@ class InteractiveBoxState extends State<InteractiveBox> {
           iconSize: widget.iconSize,
           icon: icon,
           onPressed: () {
-            _toggleIsPerforming(true);
             setState(() {
               _selectedAction = actionType;
             });
+
             if (widget.onActionSelected != null) {
               widget.onActionSelected!(actionType);
+            }
+
+            if (!isInteractiveAction) {
+              // Close circular menu items for non-interactive action
+              // and reset the current action to none.
+              setState(() {
+                _showItems = false;
+              });
+              _toggleIsPerforming(false);
             }
           },
           actionType: actionType,
