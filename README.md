@@ -16,30 +16,92 @@ and the Flutter guide for
 A Flutter widget that has pre-defined design for scaling, rotating, moving interaction. 
 
 The main idea of this widget is to allow integrating interactive features (e.g: scaling, rotate, move, copy, ...) without the need to DIY the widget by yourself. Developers can also implement the custom logic to handle the `InteractiveBox` widget.
-
-## Features
-- Support interactive actions
-    - copy, delete, rotate, scale, none, move.
-- Pre-defined and customizable UI
-    -  e.g: list of action icons are shown in a circular menu. You don't have to rewrite the circular menu by yourself!
-- Includes event handlers for every supported interactive actions.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
+### Simple use
 ```dart
-const like = 'sample';
+InteractiveBox(
+      initialWidth: width, // required
+      initialHeight: height, // required
+      initialX: xPosition, // required
+      initialY: yPosition, // required
+      initialRotateAngle: rotate, // required
+      child: Image.asset(
+        "assets/table.png",
+        fit: BoxFit.fill,
+      ), // required
+    )
 ```
 
-## Additional information
+### Only use specific actions
+```dart
+InteractiveBox(
+      // properties from simple use
+      ...,
+      includedActions: const [
+        ControlActionType.copy,
+        ControlActionType.move,
+      ],
+)
+```
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+### Customize circular menu
+```dart
+InteractiveBox(
+      // properties from simple use
+      ...,
+      circularMenuDegree: 360,
+      circularMenuIconColor: Colors.green,
+
+      // Set to true if you want to hide the menu items when performing interactive actions.
+      hideActionIconsWhenInteracting: true,
+
+      // icon size for menu items
+      iconSize: 40, 
+
+      // custom icons
+      copyIcon: Icon(Icons.abc),
+      scaleIcon: Icon(Icons.abc),
+      rotateIcon: Icon(Icons.abc),
+      deleteIcon: Icon(Icons.abc),
+      cancelIcon: Icon(Icons.abc),
+)
+```
+### Customize scale border
+```dart
+InteractiveBox(
+      // properties from simple use
+      ...,
+      scaleDotColor: Colors.purple[600]!,
+      overScaleDotColor: Colors.red[400]!,
+      defaultScaleBorderDecoration: BoxDecoration(
+        border: Border.all(
+          width: 5,
+          color: Colors.purple[700]!,
+        ),
+        shape: BoxShape.rectangle,
+      ),
+      overScaleBorderDecoration: BoxDecoration(
+        border: Border.all(
+          width: 5,
+          color: Colors.red[700]!,
+        ),
+        shape: BoxShape.rectangle,
+      ),
+
+      // Set to true if you want to show overscale border when both width and height is equal to maxWidth and maxHeight
+      maxWidth: 300,
+      maxHeight: 300,
+      showOverscaleBorder: true,
+)
+```
+
+### Customize rotate indicator
+```dart
+InteractiveBox(
+      // properties from simple use
+      ...,
+      rotateIndicator: const Icon(Icons.abc),
+      rotateIndicatorSpacing: 50,
+)
+```
