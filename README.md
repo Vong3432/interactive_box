@@ -20,7 +20,9 @@ The main idea of this widget is to allow integrating interactive features (e.g: 
 
 ### Simple use
 ```dart
-InteractiveBox(
+Stack: (
+  children: [
+    InteractiveBox(
       initialWidth: width, // required
       initialHeight: height, // required
       initialX: xPosition, // required
@@ -31,6 +33,9 @@ InteractiveBox(
         fit: BoxFit.fill,
       ), // required
     )
+  ]
+)
+
 ```
 
 ### Only use specific actions
