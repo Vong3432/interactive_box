@@ -129,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }
             },
 
-            /// since this is more an example of how we can use [ControllableItem] widget,
+            /// since this is more an example of how we can use [InteractiveBox] widget,
             /// so we use magic string here.
             child: Image.asset(
               "assets/table.png",

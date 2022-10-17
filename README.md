@@ -16,18 +16,18 @@ and the Flutter guide for
 A Flutter widget that has pre-defined design for scaling, rotating, moving interaction. 
 
 The main idea of this widget is to allow integrating interactive features (e.g: scaling, rotate, move, copy, ...) without the need to DIY the widget by yourself. Developers can also implement the custom logic to handle the `InteractiveBox` widget.
+
+![demo](/demo/interactive_box_demo.gif)
+
 ## Usage
 
 ### Simple use
 ```dart
-Stack: (
+Stack(
   children: [
     InteractiveBox(
       initialWidth: width, // required
       initialHeight: height, // required
-      initialX: xPosition, // required
-      initialY: yPosition, // required
-      initialRotateAngle: rotate, // required
       child: Image.asset(
         "assets/table.png",
         fit: BoxFit.fill,
@@ -38,7 +38,19 @@ Stack: (
 
 ```
 
+### Set initial position
+```dart
+InteractiveBox(
+      // properties from simple use
+      ...,
+      initialX: 100, 
+      initialY: 100, 
+      initialRotateAngle: 45, 
+)
+```
+
 ### Only use specific actions
+Default will use all available actions, refers to [ControlActionType](lib/src/enums/control_action_type_enum.dart)
 ```dart
 InteractiveBox(
       // properties from simple use

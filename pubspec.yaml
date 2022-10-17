@@ -1,6 +1,6 @@
 name: interactive_box
 description: A Flutter widget that has pre-defined design for scaling, rotating, moving interaction. 
-version: 0.0.1
+version: 0.1.0
 repository: https://github.com/Vong3432/interactive_box
 
 environment:
