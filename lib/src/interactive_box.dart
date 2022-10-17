@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'models/interactive_box_info.dart';
 import 'typedef.dart';
 import 'consts/scale_item.const.dart';
 import 'consts/circular_menu.const.dart';
@@ -124,6 +125,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
   bool _isPerforming = false;
   double _x = 0.0;
   double _y = 0.0;
+  double _rotateAngle = 0.0;
   ControlActionType _selectedAction = ControlActionType.none;
 
   @override
@@ -206,7 +208,8 @@ class InteractiveBoxState extends State<InteractiveBox> {
         rotateIndicator: widget.rotateIndicator,
         showRotatingIcon: isRotating,
         initialRotateAngle: widget.initialRotateAngle,
-        onRotating: (_) {
+        onRotating: (rotateAngle) {
+          _rotateAngle = rotateAngle;
           _toggleIsPerforming(true);
         },
         onRotatingEnd: (_) {
@@ -317,12 +320,20 @@ class InteractiveBoxState extends State<InteractiveBox> {
           iconSize: widget.iconSize,
           icon: icon,
           onPressed: () {
+            final InteractiveBoxInfo info = InteractiveBoxInfo(
+              width: _width,
+              height: _height,
+              x: _x,
+              y: _y,
+              rotateAngle: _rotateAngle,
+            );
+
             setState(() {
               _selectedAction = actionType;
             });
 
             if (widget.onActionSelected != null) {
-              widget.onActionSelected!(actionType);
+              widget.onActionSelected!(actionType, info);
             }
 
             if (!isInteractiveAction) {
@@ -461,12 +472,10 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
     if (_isWidthOverscale(updatedWidth)) {
       updatedXPosition = _x;
-      updatedYPosition = _y;
       updatedWidth = widget.maxWidth!;
     }
 
     if (_isHeightOverscale(updatedHeight)) {
-      updatedXPosition = _x;
       updatedYPosition = _y;
       updatedHeight = widget.maxHeight!;
     }

@@ -25,27 +25,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: Stack(
-        children: [
-          ...List.generate(
-            1,
-            (index) => MyHomePage(
-              title: 'Flutter Demo Home Page',
-              i: index,
-            ),
-          )
-        ],
-      ),
+      home: MyHomePage(title: "title"),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({
-    super.key,
-    required this.title,
-    required this.i,
-  });
+  const MyHomePage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -57,7 +43,6 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
-  final int i;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -72,65 +57,87 @@ class _MyHomePageState extends State<MyHomePage> {
   double maxHeight = 200;
   double rotate = 0;
 
-  final ScrollController controller = ScrollController();
+  // Just a sample, you may use your own List.
+  List<String> items = ["a", "b"];
 
   @override
   void initState() {
-    xPosition = xPosition + (widget.i * 10);
-    yPosition = yPosition + (widget.i * 10);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return InteractiveBox(
-      initialWidth: width,
-      initialHeight: height,
-      maxWidth: maxWidth,
-      maxHeight: maxHeight,
-      initialX: xPosition,
-      initialY: yPosition,
-      initialRotateAngle: rotate,
-      includedActions: const [
-        ControlActionType.copy,
-        ControlActionType.rotate,
-        ControlActionType.scale,
-        ControlActionType.delete,
-        // ControlActionType.delete,
-        ControlActionType.move,
+    return Stack(
+      children: [
+        ...List.generate(
+          items.length,
+          (index) => InteractiveBox(
+            initialWidth: width,
+            initialHeight: height,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
+            initialX: xPosition,
+            initialY: yPosition,
+            initialRotateAngle: rotate,
+            includedActions: const [
+              ControlActionType.copy,
+              ControlActionType.rotate,
+              ControlActionType.scale,
+              ControlActionType.delete,
+              // ControlActionType.delete,
+              ControlActionType.move,
+            ],
+            // circularMenuSpreadMultiplier: 1,
+            circularMenuDegree: 230,
+            circularMenuIconColor: Colors.green,
+            initialShowActionIcons: false,
+            iconSize: 40,
+            scaleDotColor: Colors.purple[600]!,
+            overScaleDotColor: Colors.red[400]!,
+            defaultScaleBorderDecoration: BoxDecoration(
+              border: Border.all(
+                width: 5,
+                color: Colors.purple[700]!,
+              ),
+              shape: BoxShape.rectangle,
+            ),
+            overScaleBorderDecoration: BoxDecoration(
+              border: Border.all(
+                width: 5,
+                color: Colors.red[700]!,
+              ),
+              shape: BoxShape.rectangle,
+            ),
+
+            onActionSelected:
+                (ControlActionType action, InteractiveBoxInfo info) {
+              debugPrint("Select $action, info: ${info.toMap()}");
+
+              if (action == ControlActionType.copy) {
+                setState(() {
+                  items.add("c");
+                });
+              }
+
+              if (action == ControlActionType.delete) {
+                if (items.isEmpty) return;
+                setState(() {
+                  final int deleteIdx =
+                      items.indexWhere((element) => element == items[index]);
+                  items.removeAt(deleteIdx);
+                });
+              }
+            },
+
+            /// since this is more an example of how we can use [ControllableItem] widget,
+            /// so we use magic string here.
+            child: Image.asset(
+              "assets/table.png",
+              fit: BoxFit.fill,
+            ),
+          ),
+        )
       ],
-      // circularMenuSpreadMultiplier: 1,
-      circularMenuDegree: 230,
-      circularMenuIconColor: Colors.green,
-      initialShowActionIcons: false,
-      iconSize: 40,
-      scaleDotColor: Colors.purple[600]!,
-      overScaleDotColor: Colors.red[400]!,
-      defaultScaleBorderDecoration: BoxDecoration(
-        border: Border.all(
-          width: 5,
-          color: Colors.purple[700]!,
-        ),
-        shape: BoxShape.rectangle,
-      ),
-      overScaleBorderDecoration: BoxDecoration(
-        border: Border.all(
-          width: 5,
-          color: Colors.red[700]!,
-        ),
-        shape: BoxShape.rectangle,
-      ),
-
-      onActionSelected: (ControlActionType action) {
-        debugPrint("Select $action");
-      },
-
-      /// since this is more an example of how we can use [ControllableItem] widget,
-      /// so we use magic string here.
-      child: Image.asset(
-        "assets/table.png",
-        fit: BoxFit.fill,
-      ),
     );
   }
 }
