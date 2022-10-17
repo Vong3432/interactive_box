@@ -31,7 +31,7 @@ class InteractiveBox extends StatefulWidget {
     this.hideActionIconsWhenInteracting = true,
     this.circularMenuDegree,
     // this.circularMenuSpreadMultiplier = defaultSpreadDistanceMultiplier,
-    this.showOverscaleBorder = false,
+    this.showOverscaleBorder = true,
     this.overScaleBorderDecoration,
     this.defaultScaleBorderDecoration,
     this.iconSize = defaultIconSize,
@@ -166,7 +166,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
         overScaleCornerDotColor: widget.overScaleDotColor,
         overScaleBorderDecoration: widget.overScaleBorderDecoration,
         defaultScaleBorderDecoration: widget.defaultScaleBorderDecoration,
-        showOverScaleBorder: isOverScale,
+        showOverScaleBorder: isOverScale && widget.showOverscaleBorder,
         onAnyDotDraggingEnd: (details) {
           _onMovingEnd(details);
         },
