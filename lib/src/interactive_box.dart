@@ -48,6 +48,7 @@ class InteractiveBox extends StatefulWidget {
     this.initialX = 0.0,
     this.initialY = 0.0,
     this.onActionSelected,
+    this.onTap,
     this.scaleDotColor = defaultDotColor,
     this.overScaleDotColor = defaultOverscaleDotColor,
     // this.dot,
@@ -97,6 +98,7 @@ class InteractiveBox extends StatefulWidget {
 
   /// A callback whenever an action (by pressing icon) is selected
   final ActionSelectedCallback? onActionSelected;
+  final VoidCallback? onTap;
 
   final Color circularMenuIconColor;
   final double iconSize;
@@ -252,6 +254,10 @@ class InteractiveBoxState extends State<InteractiveBox> {
           _onMovingEnd(details);
         },
         onTap: () {
+          if (widget.onTap != null) {
+            widget.onTap!();
+          }
+
           setState(() {
             _showItems = !_showItems;
           });
