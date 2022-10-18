@@ -240,6 +240,10 @@ class InteractiveBoxState extends State<InteractiveBox> {
     child = SizedBox.expand(
       child: GestureDetector(
         onPanUpdate: (details) {
+          setState(() {
+            _selectedAction = ControlActionType.move;
+          });
+
           if (!widget.includedActions.contains(ControlActionType.move)) {
             return;
           }
@@ -247,6 +251,10 @@ class InteractiveBoxState extends State<InteractiveBox> {
           _onMoving(details);
         },
         onPanEnd: (details) {
+          setState(() {
+            _selectedAction = ControlActionType.none;
+          });
+
           if (!widget.includedActions.contains(ControlActionType.move)) {
             return;
           }
@@ -366,8 +374,8 @@ class InteractiveBoxState extends State<InteractiveBox> {
   }
 
   void _onMoving(DragUpdateDetails update) {
-    // only moving when actiontype is none
-    if (_selectedAction != ControlActionType.none) {
+    // only moving when actiontype is move
+    if (_selectedAction != ControlActionType.move) {
       return;
     }
 
