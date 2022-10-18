@@ -137,6 +137,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
     _y = widget.initialY;
     _width = widget.initialWidth;
     _height = widget.initialHeight;
+    _rotateAngle = widget.initialRotateAngle;
   }
 
   @override
@@ -212,7 +213,8 @@ class InteractiveBoxState extends State<InteractiveBox> {
           _rotateAngle = rotateAngle;
           _toggleIsPerforming(true);
         },
-        onRotatingEnd: (_) {
+        onRotatingEnd: (double finalAngle) {
+          _rotateAngle = finalAngle;
           _toggleIsPerforming(false);
         },
         child: child,
