@@ -48,6 +48,7 @@ class InteractiveBox extends StatefulWidget {
     this.initialX = 0.0,
     this.initialY = 0.0,
     this.onActionSelected,
+    this.onInteractiveActionPerformed,
     this.onTap,
     this.scaleDotColor = defaultDotColor,
     this.overScaleDotColor = defaultOverscaleDotColor,
@@ -96,9 +97,13 @@ class InteractiveBox extends StatefulWidget {
   /// Distance of the spread distance between the [child] and the circular menu.
   // final double circularMenuSpreadMultiplier;
 
-  /// A callback whenever an action (by pressing icon) is selected
+  /// A callback that will be called whenever an action (by pressing icon) is selected
   final ActionSelectedCallback? onActionSelected;
-  final VoidCallback? onTap;
+
+  /// A callback that will be called after performing interactive actions.
+  final OnInteractiveActionPerformed? onInteractiveActionPerformed;
+
+  final OnTapCallback? onTap;
 
   final Color circularMenuIconColor;
   final double iconSize;
@@ -173,7 +178,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
         defaultScaleBorderDecoration: widget.defaultScaleBorderDecoration,
         showOverScaleBorder: isOverScale && widget.showOverscaleBorder,
         onAnyDotDraggingEnd: (details) {
-          _onMovingEnd(details);
+          _onScalingEnd(details);
         },
         onTopLeftDotDragging: (details) {
           _onScaling(details, ScaleDirection.topLeft);
@@ -217,6 +222,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
         },
         onRotatingEnd: (double finalAngle) {
           _rotateAngle = finalAngle;
+          _notifyParentAfterInteracted();
           _toggleIsPerforming(false);
         },
         child: child,
@@ -251,10 +257,6 @@ class InteractiveBoxState extends State<InteractiveBox> {
           _onMoving(details);
         },
         onPanEnd: (details) {
-          setState(() {
-            _selectedAction = ControlActionType.none;
-          });
-
           if (!widget.includedActions.contains(ControlActionType.move)) {
             return;
           }
@@ -263,7 +265,8 @@ class InteractiveBoxState extends State<InteractiveBox> {
         },
         onTap: () {
           if (widget.onTap != null) {
-            widget.onTap!();
+            final InteractiveBoxInfo info = _getCurrentBoxInfo;
+            widget.onTap!(info);
           }
 
           setState(() {
@@ -336,13 +339,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
           iconSize: widget.iconSize,
           icon: icon,
           onPressed: () {
-            final InteractiveBoxInfo info = InteractiveBoxInfo(
-              width: _width,
-              height: _height,
-              x: _x,
-              y: _y,
-              rotateAngle: _rotateAngle,
-            );
+            final InteractiveBoxInfo info = _getCurrentBoxInfo;
 
             setState(() {
               _selectedAction = actionType;
@@ -370,6 +367,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
   /// Users can only be allowed to interact with the controllable item before releasing the cursor.
   /// Once it is released, no more interaction.
   void _onMovingEnd(DragEndDetails details) {
+    _notifyParentAfterInteracted();
     _toggleIsPerforming(false);
   }
 
@@ -391,6 +389,16 @@ class InteractiveBoxState extends State<InteractiveBox> {
       _x = updatedXPosition;
       _y = updatedYPosition;
     });
+  }
+
+  void _onScalingEnd(DragEndDetails details) {
+    // only update when actiontype is scaling
+    if (_selectedAction != ControlActionType.scale) {
+      return;
+    }
+
+    _notifyParentAfterInteracted();
+    _toggleIsPerforming(false);
   }
 
   void _onScaling(
@@ -523,5 +531,26 @@ class InteractiveBoxState extends State<InteractiveBox> {
     if (widget.maxHeight == null) return false;
 
     return height >= widget.maxHeight!;
+  }
+
+  InteractiveBoxInfo get _getCurrentBoxInfo => InteractiveBoxInfo(
+        width: _width,
+        height: _height,
+        x: _x,
+        y: _y,
+        rotateAngle: _rotateAngle,
+      );
+
+  void _notifyParentAfterInteracted() {
+    List<ControlActionType> interactiveActions = [
+      ControlActionType.move,
+      ControlActionType.scale,
+      ControlActionType.rotate,
+    ];
+    if (!interactiveActions.contains(_selectedAction)) return;
+
+    if (widget.onInteractiveActionPerformed != null) {
+      widget.onInteractiveActionPerformed!(_selectedAction, _getCurrentBoxInfo);
+    }
   }
 }

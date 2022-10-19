@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:interactive_box/interactive_box.dart';
+import 'package:uuid/uuid.dart';
 
 void main() {
   runApp(const MyApp());
@@ -58,86 +59,226 @@ class _MyHomePageState extends State<MyHomePage> {
   double rotate = 0;
 
   // Just a sample, you may use your own List.
-  List<String> items = ["a", "b"];
+  List<TableModel> tables = [];
+
+  late TransformationController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = TransformationController();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        ...List.generate(
-          items.length,
-          (index) => InteractiveBox(
-            initialWidth: width,
-            initialHeight: height,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-            initialX: xPosition,
-            initialY: yPosition,
-            initialRotateAngle: rotate,
-            includedActions: const [
-              ControlActionType.copy,
-              ControlActionType.rotate,
-              ControlActionType.scale,
-              ControlActionType.delete,
-              // ControlActionType.delete,
-              ControlActionType.move,
-            ],
-            // circularMenuSpreadMultiplier: 1,
-            circularMenuDegree: 230,
-            circularMenuIconColor: Colors.green,
-            initialShowActionIcons: false,
-            iconSize: 40,
-            scaleDotColor: Colors.purple[600]!,
-            overScaleDotColor: Colors.red[400]!,
-            defaultScaleBorderDecoration: BoxDecoration(
-              border: Border.all(
-                width: 5,
-                color: Colors.purple[700]!,
+    final Size screenSize = MediaQuery.of(context).size;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      tables.add(
+                        TableModel(
+                          id: const Uuid().v4(),
+                          showIcons: false,
+                          width: 300,
+                          height: 300,
+                          x: 0,
+                          y: 0,
+                          rotateAngle: 0,
+                          image: Image.asset(
+                            "assets/table.png",
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      );
+                    });
+                  },
+                  child: const Text("Import"),
+                ),
               ),
-              shape: BoxShape.rectangle,
             ),
-            overScaleBorderDecoration: BoxDecoration(
-              border: Border.all(
-                width: 5,
-                color: Colors.red[700]!,
+            ConstrainedBox(
+              constraints: BoxConstraints.loose(
+                Size(
+                  screenSize.width,
+                  screenSize.height,
+                ),
               ),
-              shape: BoxShape.rectangle,
+
+              ///
+              /// Create infinite screen.
+              /// ref: https://stackoverflow.com/a/70915030
+              ///
+              /// Author: @Tor-Martin Holen
+              ///
+              child: InteractiveViewer.builder(
+                transformationController: _controller,
+                builder: (context, quad) {
+                  return Center(
+                    child: SizedBox(
+                      width: screenSize.width,
+                      height: screenSize.height,
+                      child: GridPaper(
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          fit: StackFit.passthrough,
+                          children: [
+                            ...List.generate(tables.length, (index) {
+                              TableModel table = tables[index];
+
+                              return InteractiveBox(
+                                key: ObjectKey(table),
+                                initialWidth: table.width,
+                                initialHeight: table.height,
+                                initialShowActionIcons: table.showIcons,
+                                initialX: table.x,
+                                initialY: table.y,
+                                initialRotateAngle: table.rotateAngle,
+                                circularMenuDegree: 180,
+                                iconSize: 40,
+                                onInteractiveActionPerformed: (_, boxInfo) {
+                                  /// Copy boxInfo and update to table after performing interactive actions
+                                  /// so that when we toggle the icons in [onTap] method below, all tables
+                                  /// will be updated correctly (persist their position, size, rotate angle)...
+                                  ///
+                                  ///
+                                  /// Without this you might see the other tables not updated correctly.
+                                  /// To demo this problem,
+                                  /// 1. Comment the code below
+                                  /// 2. Press "import" button twice
+                                  /// 3. Drag the second image to another side
+                                  /// 4. Tap the first image
+                                  ///
+                                  /// and you will see the second image is jumped to its original position.
+                                  ///
+
+                                  // START comment here if want to see the problem
+                                  TableModel copiedTable = table.copyWith(
+                                    width: boxInfo.width,
+                                    height: boxInfo.height,
+                                    rotateAngle: boxInfo.rotateAngle,
+                                    x: boxInfo.x,
+                                    y: boxInfo.y,
+                                  );
+
+                                  int idx = tables.indexOf(table);
+
+                                  setState(() {
+                                    tables[idx] = copiedTable;
+                                  });
+
+                                  // END comment here if want to see the problem
+                                },
+                                onTap: (boxInfo) {
+                                  /// Only tapped table will show icons.
+                                  ///
+                                  /// Might refer to [onInteractiveActionPerformed]
+                                  ///
+                                  setState(() {
+                                    tables = tables
+                                        .map((e) => e.id == table.id
+                                            ? e.copyWith(showIcons: true)
+                                            : e.copyWith(showIcons: false))
+                                        .toList();
+                                  });
+                                },
+                                onActionSelected: (actionType, boxInfo) {
+                                  if (actionType == ControlActionType.copy) {
+                                    TableModel copiedTable = table.copyWith(
+                                      id: const Uuid().v4(),
+                                      width: boxInfo.width,
+                                      height: boxInfo.height,
+                                      rotateAngle: boxInfo.rotateAngle,
+                                      x: boxInfo.x + 50,
+                                      y: boxInfo.y + 50,
+                                    );
+
+                                    setState(() {
+                                      tables.add(copiedTable);
+                                    });
+                                  } else if (actionType ==
+                                      ControlActionType.delete) {
+                                    int idx = tables.indexOf(table);
+                                    setState(() {
+                                      tables.removeAt(idx);
+                                    });
+                                  }
+                                },
+                                includedActions: const [
+                                  ControlActionType.copy,
+                                  ControlActionType.delete,
+                                  ControlActionType.move,
+                                  ControlActionType.rotate,
+                                  ControlActionType.scale,
+                                ],
+                                child: tables[index].image,
+                              );
+                            })
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-            onActionSelected:
-                (ControlActionType action, InteractiveBoxInfo info) {
-              debugPrint("Select $action, info: ${info.toMap()}");
+@immutable
+class TableModel {
+  final String id;
+  final double width;
+  final double height;
+  final double x;
+  final double y;
+  final double rotateAngle;
+  final bool showIcons;
+  final Widget image;
 
-              if (action == ControlActionType.copy) {
-                setState(() {
-                  items.add("c");
-                });
-              }
+  const TableModel({
+    required this.width,
+    required this.height,
+    required this.x,
+    required this.y,
+    required this.rotateAngle,
+    required this.image,
+    required this.id,
+    required this.showIcons,
+  });
 
-              if (action == ControlActionType.delete) {
-                if (items.isEmpty) return;
-                setState(() {
-                  final int deleteIdx =
-                      items.indexWhere((element) => element == items[index]);
-                  items.removeAt(deleteIdx);
-                });
-              }
-            },
-
-            /// since this is more an example of how we can use [InteractiveBox] widget,
-            /// so we use magic string here.
-            child: Image.asset(
-              "assets/table.png",
-              fit: BoxFit.fill,
-            ),
-          ),
-        )
-      ],
+  TableModel copyWith({
+    String? id,
+    double? width,
+    double? height,
+    double? x,
+    double? y,
+    double? rotateAngle,
+    Widget? image,
+    bool? showIcons,
+  }) {
+    return TableModel(
+      id: id ?? this.id,
+      showIcons: showIcons ?? this.showIcons,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      x: x ?? this.x,
+      y: y ?? this.y,
+      rotateAngle: rotateAngle ?? this.rotateAngle,
+      image: image ?? this.image,
     );
   }
 }
