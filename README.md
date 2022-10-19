@@ -17,7 +17,7 @@ A Flutter widget that has pre-defined design for scaling, rotating, moving inter
 
 The main idea of this widget is to allow integrating interactive features (e.g: scaling, rotate, move, copy, ...) without the need to DIY the widget by yourself. Developers can also implement the custom logic to handle the `InteractiveBox` widget.
 
-![demo](/demo/interactive_box_demo.gif)
+![demo](https://raw.githubusercontent.com/Vong3432/interactive_box/main/demo/interactive_box_demo.gif)
 
 ## Usage
 
