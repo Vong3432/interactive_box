@@ -1,5 +1,10 @@
 # Changelog
 This changelog uses [semantic versioning](https://semver.org) for documenting changes. 
+
+## 0.2.1
+#### InteractiveBox 
+- Makes the interactive box update when needed.
+
 ## 0.2.0
 #### InteractiveBox 
 - Add new onInteractiveActionPerformed handler
