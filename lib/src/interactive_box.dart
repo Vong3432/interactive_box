@@ -148,6 +148,19 @@ class InteractiveBoxState extends State<InteractiveBox> {
   }
 
   @override
+  void didUpdateWidget(covariant InteractiveBox oldWidget) {
+    if (oldWidget.initialX != widget.initialX ||
+        oldWidget.initialY != widget.initialY ||
+        oldWidget.initialWidth != widget.initialWidth ||
+        oldWidget.initialHeight != widget.initialHeight ||
+        // oldWidget.initialShowActionIcons != widget.initialShowActionIcons ||
+        oldWidget.initialRotateAngle != widget.initialRotateAngle) {
+      debugPrint("Not same");
+      super.didUpdateWidget(oldWidget);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isRotating = _selectedAction == ControlActionType.rotate;
     final bool isScaling = _selectedAction == ControlActionType.scale;

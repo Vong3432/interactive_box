@@ -50,23 +50,35 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  double xPosition = 100.0; // default should be 0
-  double yPosition = 100.0; // default should be 0
-  double width = 150;
-  double height = 150;
-  double maxWidth = 200;
-  double maxHeight = 200;
-  double rotate = 0;
-
+  late TransformationController _controller;
   // Just a sample, you may use your own List.
   List<TableModel> tables = [];
-
-  late TransformationController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = TransformationController();
+
+    List<TableModel> dumData = List.generate(
+      1000,
+      (_) => TableModel(
+        id: const Uuid().v4(),
+        showIcons: false,
+        width: 300,
+        height: 300,
+        x: 0,
+        y: 0,
+        rotateAngle: 0,
+        image: Image.asset(
+          "assets/table.png",
+          fit: BoxFit.fill,
+        ),
+      ),
+    );
+
+    setState(() {
+      tables.addAll(dumData);
+    });
   }
 
   @override
@@ -128,103 +140,42 @@ class _MyHomePageState extends State<MyHomePage> {
                       width: screenSize.width,
                       height: screenSize.height,
                       child: GridPaper(
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          fit: StackFit.passthrough,
-                          children: [
-                            ...List.generate(tables.length, (index) {
-                              TableModel table = tables[index];
+                        child: Content(
+                            tables: tables,
+                            onAdd: (TableModel table) {
+                              setState(() {
+                                tables.add(table);
+                              });
+                            },
+                            onToggle: (tappedTable, index) {
+                              setState(() {
+                                tables[index] = tappedTable;
+                              });
 
-                              return InteractiveBox(
-                                key: ObjectKey(table),
-                                initialWidth: table.width,
-                                initialHeight: table.height,
-                                initialShowActionIcons: table.showIcons,
-                                initialX: table.x,
-                                initialY: table.y,
-                                initialRotateAngle: table.rotateAngle,
-                                circularMenuDegree: 180,
-                                iconSize: 40,
-                                onInteractiveActionPerformed: (_, boxInfo) {
-                                  /// Copy boxInfo and update to table after performing interactive actions
-                                  /// so that when we toggle the icons in [onTap] method below, all tables
-                                  /// will be updated correctly (persist their position, size, rotate angle)...
-                                  ///
-                                  ///
-                                  /// Without this you might see the other tables not updated correctly.
-                                  /// To demo this problem,
-                                  /// 1. Comment the code below
-                                  /// 2. Press "import" button twice
-                                  /// 3. Drag the second image to another side
-                                  /// 4. Tap the first image
-                                  ///
-                                  /// and you will see the second image is jumped to its original position.
-                                  ///
+                              for (TableModel table in tables) {
+                                int index = tables.indexOf(table);
 
-                                  // START comment here if want to see the problem
-                                  TableModel copiedTable = table.copyWith(
-                                    width: boxInfo.width,
-                                    height: boxInfo.height,
-                                    rotateAngle: boxInfo.rotateAngle,
-                                    x: boxInfo.x,
-                                    y: boxInfo.y,
-                                  );
+                                if (index == -1) return;
 
-                                  int idx = tables.indexOf(table);
-
+                                if (table.id != tappedTable.id &&
+                                    table.showIcons == true) {
                                   setState(() {
-                                    tables[idx] = copiedTable;
+                                    tables[index] =
+                                        table.copyWith(showIcons: false);
                                   });
-
-                                  // END comment here if want to see the problem
-                                },
-                                onTap: (boxInfo) {
-                                  /// Only tapped table will show icons.
-                                  ///
-                                  /// Might refer to [onInteractiveActionPerformed]
-                                  ///
-                                  setState(() {
-                                    tables = tables
-                                        .map((e) => e.id == table.id
-                                            ? e.copyWith(showIcons: true)
-                                            : e.copyWith(showIcons: false))
-                                        .toList();
-                                  });
-                                },
-                                onActionSelected: (actionType, boxInfo) {
-                                  if (actionType == ControlActionType.copy) {
-                                    TableModel copiedTable = table.copyWith(
-                                      id: const Uuid().v4(),
-                                      width: boxInfo.width,
-                                      height: boxInfo.height,
-                                      rotateAngle: boxInfo.rotateAngle,
-                                      x: boxInfo.x + 50,
-                                      y: boxInfo.y + 50,
-                                    );
-
-                                    setState(() {
-                                      tables.add(copiedTable);
-                                    });
-                                  } else if (actionType ==
-                                      ControlActionType.delete) {
-                                    int idx = tables.indexOf(table);
-                                    setState(() {
-                                      tables.removeAt(idx);
-                                    });
-                                  }
-                                },
-                                includedActions: const [
-                                  ControlActionType.copy,
-                                  ControlActionType.delete,
-                                  ControlActionType.move,
-                                  ControlActionType.rotate,
-                                  ControlActionType.scale,
-                                ],
-                                child: tables[index].image,
-                              );
-                            })
-                          ],
-                        ),
+                                }
+                              }
+                            },
+                            onUpdate: (TableModel table, int index) {
+                              setState(() {
+                                tables[index] = table;
+                              });
+                            },
+                            onDel: (int index) {
+                              setState(() {
+                                tables.removeAt(index);
+                              });
+                            }),
                       ),
                     ),
                   );
@@ -234,6 +185,128 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class Content extends StatelessWidget {
+  const Content({
+    super.key,
+    required this.tables,
+    required this.onAdd,
+    required this.onUpdate,
+    required this.onToggle,
+    required this.onDel,
+  });
+
+  final List<TableModel> tables;
+  final void Function(TableModel table) onAdd;
+  final void Function(TableModel table, int index) onUpdate;
+  final void Function(TableModel table, int index) onToggle;
+  final void Function(int index) onDel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      fit: StackFit.passthrough,
+      children: [
+        ...List.generate(tables.length, (index) {
+          TableModel table = tables[index];
+
+          return InteractiveBox(
+            key: ObjectKey(table),
+            initialWidth: table.width,
+            initialHeight: table.height,
+            initialShowActionIcons: table.showIcons,
+            initialX: table.x,
+            initialY: table.y,
+            initialRotateAngle: table.rotateAngle,
+            circularMenuDegree: 180,
+            iconSize: 40,
+            onInteractiveActionPerformed: (_, boxInfo) {
+              /// Copy boxInfo and update to table after performing interactive actions
+              /// so that when we toggle the icons in [onTap] method below, all tables
+              /// will be updated correctly (persist their position, size, rotate angle)...
+              ///
+              ///
+              /// Without this you might see the other tables not updated correctly.
+              /// To demo this problem,
+              /// 1. Comment the code below
+              /// 2. Press "import" button twice
+              /// 3. Drag the second image to another side
+              /// 4. Tap the first image
+              ///
+              /// and you will see the second image is jumped to its original position.
+              ///
+
+              // START comment here if want to see the problem
+              TableModel copiedTable = table.copyWith(
+                width: boxInfo.width,
+                height: boxInfo.height,
+                rotateAngle: boxInfo.rotateAngle,
+                x: boxInfo.x,
+                y: boxInfo.y,
+              );
+
+              int idx = tables.indexOf(table);
+
+              if (idx == -1) return;
+
+              onUpdate(copiedTable, idx);
+
+              // END comment here if want to see the problem
+            },
+            onTap: (boxInfo) {
+              /// Only tapped table will show icons.
+              ///
+              /// Might refer to [onInteractiveActionPerformed]
+              ///
+              // setState(() {
+              int idx = tables.indexOf(table);
+              TableModel copiedTable = table.copyWith(
+                showIcons: !table.showIcons,
+              );
+
+              onToggle(copiedTable, idx);
+              // tables[idx] = table
+              // tables = tables
+              //     .map((e) => e.id == table.id
+              //         ? e.copyWith(showIcons: true)
+              //         : e.copyWith(showIcons: false))
+              //     .toList();
+              // });
+            },
+            onActionSelected: (actionType, boxInfo) {
+              if (actionType == ControlActionType.copy) {
+                TableModel copiedTable = table.copyWith(
+                  id: const Uuid().v4(),
+                  width: boxInfo.width,
+                  height: boxInfo.height,
+                  rotateAngle: boxInfo.rotateAngle,
+                  showIcons: false,
+                  x: boxInfo.x + 50,
+                  y: boxInfo.y + 50,
+                );
+
+                onAdd(copiedTable);
+              } else if (actionType == ControlActionType.delete) {
+                int idx = tables.indexOf(table);
+
+                onDel(idx);
+              }
+            },
+            includedActions: const [
+              ControlActionType.copy,
+              ControlActionType.delete,
+              ControlActionType.move,
+              ControlActionType.rotate,
+              ControlActionType.scale,
+            ],
+            child: tables[index].image,
+          );
+        })
+      ],
     );
   }
 }

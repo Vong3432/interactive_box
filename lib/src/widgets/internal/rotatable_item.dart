@@ -49,10 +49,10 @@ class _RotatableItemState extends State<RotatableItem> {
 
   @override
   void didUpdateWidget(covariant RotatableItem oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    oldWidget.showRotatingIcon != widget.showRotatingIcon;
-
-    _showRotatingIcon = widget.showRotatingIcon;
+    if (oldWidget.showRotatingIcon != widget.showRotatingIcon) {
+      _showRotatingIcon = widget.showRotatingIcon;
+      super.didUpdateWidget(oldWidget);
+    }
   }
 
   @override
