@@ -68,9 +68,8 @@ class _MultipleCircularMenuState extends State<MultipleCircularMenu>
   ///
   @override
   void didUpdateWidget(covariant MultipleCircularMenu oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
     if (widget.showItems != oldWidget.showItems) {
+      super.didUpdateWidget(oldWidget);
       if (oldWidget.showItems) {
         menuAnimationController.reverse();
       } else {

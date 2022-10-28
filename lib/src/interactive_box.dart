@@ -155,7 +155,6 @@ class InteractiveBoxState extends State<InteractiveBox> {
         oldWidget.initialHeight != widget.initialHeight ||
         // oldWidget.initialShowActionIcons != widget.initialShowActionIcons ||
         oldWidget.initialRotateAngle != widget.initialRotateAngle) {
-      debugPrint("Not same");
       super.didUpdateWidget(oldWidget);
     }
   }
@@ -256,37 +255,39 @@ class InteractiveBoxState extends State<InteractiveBox> {
     );
 
     /// Here is the topest in the widget tree of [child]
-    child = SizedBox.expand(
-      child: GestureDetector(
-        onPanUpdate: (details) {
-          setState(() {
-            _selectedAction = ControlActionType.move;
-          });
+    child = RepaintBoundary(
+      child: SizedBox.expand(
+        child: GestureDetector(
+          onPanUpdate: (details) {
+            setState(() {
+              _selectedAction = ControlActionType.move;
+            });
 
-          if (!widget.includedActions.contains(ControlActionType.move)) {
-            return;
-          }
+            if (!widget.includedActions.contains(ControlActionType.move)) {
+              return;
+            }
 
-          _onMoving(details);
-        },
-        onPanEnd: (details) {
-          if (!widget.includedActions.contains(ControlActionType.move)) {
-            return;
-          }
+            _onMoving(details);
+          },
+          onPanEnd: (details) {
+            if (!widget.includedActions.contains(ControlActionType.move)) {
+              return;
+            }
 
-          _onMovingEnd(details);
-        },
-        onTap: () {
-          if (widget.onTap != null) {
-            final InteractiveBoxInfo info = _getCurrentBoxInfo;
-            widget.onTap!(info);
-          }
+            _onMovingEnd(details);
+          },
+          onTap: () {
+            if (widget.onTap != null) {
+              final InteractiveBoxInfo info = _getCurrentBoxInfo;
+              widget.onTap!(info);
+            }
 
-          setState(() {
-            _showItems = !_showItems;
-          });
-        },
-        child: child,
+            setState(() {
+              _showItems = !_showItems;
+            });
+          },
+          child: child,
+        ),
       ),
     );
 
