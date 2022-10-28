@@ -1,6 +1,10 @@
 # Changelog
 This changelog uses [semantic versioning](https://semver.org) for documenting changes. 
 
+## 0.2.2
+#### InteractiveBox 
+- Adds RepaintBoundary to prevent unncessary repaint in large list.
+
 ## 0.2.1
 #### InteractiveBox 
 - Makes the interactive box update when needed.
