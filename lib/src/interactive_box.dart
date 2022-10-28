@@ -382,7 +382,6 @@ class InteractiveBoxState extends State<InteractiveBox> {
   /// Once it is released, no more interaction.
   void _onMovingEnd(DragEndDetails details) {
     _notifyParentAfterInteracted();
-    _toggleIsPerforming(false);
   }
 
   void _onMoving(DragUpdateDetails update) {
