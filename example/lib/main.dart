@@ -215,7 +215,8 @@ class Content extends StatelessWidget {
           TableModel table = tables[index];
 
           return InteractiveBox(
-            key: ObjectKey(table),
+            key: ValueKey(table.id),
+            // hideActionIconsWhenInteracting: false,
             initialWidth: table.width,
             initialHeight: table.height,
             initialShowActionIcons: table.showIcons,
@@ -249,11 +250,7 @@ class Content extends StatelessWidget {
                 y: boxInfo.y,
               );
 
-              int idx = tables.indexOf(table);
-
-              if (idx == -1) return;
-
-              onUpdate(copiedTable, idx);
+              onUpdate(copiedTable, index);
 
               // END comment here if want to see the problem
             },
@@ -263,19 +260,11 @@ class Content extends StatelessWidget {
               /// Might refer to [onInteractiveActionPerformed]
               ///
               // setState(() {
-              int idx = tables.indexOf(table);
               TableModel copiedTable = table.copyWith(
                 showIcons: !table.showIcons,
               );
 
-              onToggle(copiedTable, idx);
-              // tables[idx] = table
-              // tables = tables
-              //     .map((e) => e.id == table.id
-              //         ? e.copyWith(showIcons: true)
-              //         : e.copyWith(showIcons: false))
-              //     .toList();
-              // });
+              onToggle(copiedTable, index);
             },
             onActionSelected: (actionType, boxInfo) {
               if (actionType == ControlActionType.copy) {
@@ -289,11 +278,10 @@ class Content extends StatelessWidget {
                   y: boxInfo.y + 50,
                 );
 
+                onToggle(table.copyWith(showIcons: !table.showIcons), index);
                 onAdd(copiedTable);
               } else if (actionType == ControlActionType.delete) {
-                int idx = tables.indexOf(table);
-
-                onDel(idx);
+                onDel(index);
               }
             },
             includedActions: const [

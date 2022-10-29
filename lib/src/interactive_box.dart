@@ -148,14 +148,11 @@ class InteractiveBoxState extends State<InteractiveBox> {
   }
 
   @override
-  void didUpdateWidget(covariant InteractiveBox oldWidget) {
-    if (oldWidget.initialX != widget.initialX ||
-        oldWidget.initialY != widget.initialY ||
-        oldWidget.initialWidth != widget.initialWidth ||
-        oldWidget.initialHeight != widget.initialHeight ||
-        // oldWidget.initialShowActionIcons != widget.initialShowActionIcons ||
-        oldWidget.initialRotateAngle != widget.initialRotateAngle) {
-      super.didUpdateWidget(oldWidget);
+  void didUpdateWidget(InteractiveBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.initialShowActionIcons != widget.initialShowActionIcons) {
+      _showItems = widget.initialShowActionIcons;
     }
   }
 
@@ -300,7 +297,6 @@ class InteractiveBoxState extends State<InteractiveBox> {
       setState(() {
         _selectedAction = ControlActionType.none;
       });
-      return;
     }
 
     if (widget.hideActionIconsWhenInteracting) {
