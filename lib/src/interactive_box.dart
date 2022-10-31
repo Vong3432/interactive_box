@@ -48,6 +48,7 @@ class InteractiveBox extends StatefulWidget {
     this.initialX = 0.0,
     this.initialY = 0.0,
     this.onActionSelected,
+    this.onInteractiveActionPerforming,
     this.onInteractiveActionPerformed,
     this.onTap,
     this.scaleDotColor = defaultDotColor,
@@ -99,6 +100,9 @@ class InteractiveBox extends StatefulWidget {
 
   /// A callback that will be called whenever an action (by pressing icon) is selected
   final ActionSelectedCallback? onActionSelected;
+
+  /// A callback that will be called when performing interactive actions.
+  final OnInteractiveActionPerforming? onInteractiveActionPerforming;
 
   /// A callback that will be called after performing interactive actions.
   final OnInteractiveActionPerformed? onInteractiveActionPerformed;
@@ -227,6 +231,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
         initialRotateAngle: widget.initialRotateAngle,
         onRotating: (rotateAngle) {
           _rotateAngle = rotateAngle;
+          _notifyParentWhenInteracting();
           _toggleIsPerforming(true);
         },
         onRotatingEnd: (double finalAngle) {
@@ -400,6 +405,8 @@ class InteractiveBoxState extends State<InteractiveBox> {
       _x = updatedXPosition;
       _y = updatedYPosition;
     });
+
+    _notifyParentWhenInteracting();
   }
 
   void _onScalingEnd(DragEndDetails details) {
@@ -530,6 +537,8 @@ class InteractiveBoxState extends State<InteractiveBox> {
       _x = updatedXPosition;
       _y = updatedYPosition;
     });
+
+    _notifyParentWhenInteracting();
   }
 
   bool _isWidthOverscale(double width) {
@@ -552,13 +561,23 @@ class InteractiveBoxState extends State<InteractiveBox> {
         rotateAngle: _rotateAngle,
       );
 
+  final List<ControlActionType> _interactiveActions = [
+    ControlActionType.move,
+    ControlActionType.scale,
+    ControlActionType.rotate,
+  ];
+
+  void _notifyParentWhenInteracting() {
+    if (!_interactiveActions.contains(_selectedAction)) return;
+
+    if (widget.onInteractiveActionPerforming != null) {
+      widget.onInteractiveActionPerforming!(
+          _selectedAction, _getCurrentBoxInfo);
+    }
+  }
+
   void _notifyParentAfterInteracted() {
-    List<ControlActionType> interactiveActions = [
-      ControlActionType.move,
-      ControlActionType.scale,
-      ControlActionType.rotate,
-    ];
-    if (!interactiveActions.contains(_selectedAction)) return;
+    if (!_interactiveActions.contains(_selectedAction)) return;
 
     if (widget.onInteractiveActionPerformed != null) {
       widget.onInteractiveActionPerformed!(_selectedAction, _getCurrentBoxInfo);

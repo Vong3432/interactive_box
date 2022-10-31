@@ -5,6 +5,8 @@ typedef ActionSelectedCallback = void Function(
     ControlActionType, InteractiveBoxInfo);
 typedef OnInteractiveActionPerformed = void Function(
     ControlActionType, InteractiveBoxInfo);
+typedef OnInteractiveActionPerforming = void Function(
+    ControlActionType, InteractiveBoxInfo);
 typedef OnTapCallback = void Function(InteractiveBoxInfo);
 // typedef ScalingCallback = void Function(DragUpdateDetails, ScaleDirection);
 // typedef RotatingCallback = void Function(DragUpdateDetails);
