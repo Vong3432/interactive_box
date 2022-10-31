@@ -158,6 +158,21 @@ class InteractiveBoxState extends State<InteractiveBox> {
     if (oldWidget.initialShowActionIcons != widget.initialShowActionIcons) {
       _showItems = widget.initialShowActionIcons;
     }
+    if (oldWidget.initialWidth != widget.initialWidth) {
+      _width = widget.initialWidth;
+    }
+    if (oldWidget.initialHeight != widget.initialHeight) {
+      _height = widget.initialHeight;
+    }
+    if (oldWidget.initialX != widget.initialX) {
+      _x = widget.initialX;
+    }
+    if (oldWidget.initialY != widget.initialY) {
+      _y = widget.initialY;
+    }
+    if (oldWidget.initialRotateAngle != widget.initialRotateAngle) {
+      _rotateAngle = widget.initialRotateAngle;
+    }
   }
 
   @override
