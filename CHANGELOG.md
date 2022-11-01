@@ -1,5 +1,12 @@
 # Changelog
 This changelog uses [semantic versioning](https://semver.org) for documenting changes. 
+
+## 0.2.4
+#### InteractiveBox 
+- Fixes incorrect scaling after rotating.
+- Adds new OnInteractiveActionPerforming handler.
+- Will now respond and set all initial properties (e.g: initialX, initialY, ...) from parameters to state if they changes.
+
 ## 0.2.3
 #### InteractiveBox 
 - Will now respond and set [initialShowActionIcons] from parameters to state if it changes.
