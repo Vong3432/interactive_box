@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'models/interactive_box_info.dart';
@@ -459,18 +461,43 @@ class InteractiveBoxState extends State<InteractiveBox> {
     /// ref: https://stackoverflow.com/a/60964980
     /// Author: @Kherel
     ///
+    /// Rotational offset
+    /// - Fix x, y position after scaling if rotated
+    ///
+    /// https://stackoverflow.com/a/73930511
+    /// Author: @Steve
+    ///
     switch (scaleDirection) {
       case ScaleDirection.centerLeft:
         double newWidth = updatedWidth - dx;
 
         updatedWidth = newWidth > 0 ? newWidth : 0;
-        updatedXPosition += dx;
+
+        // left
+        var rotationalOffset = Offset(
+              cos(_rotateAngle) + 1, // x
+              sin(_rotateAngle), // y
+            ) *
+            update.delta.dx /
+            2;
+        updatedXPosition += rotationalOffset.dx;
+        updatedYPosition += rotationalOffset.dy;
 
         break;
 
       case ScaleDirection.centerRight:
         double newWidth = updatedWidth + dx;
         updatedWidth = newWidth > 0 ? newWidth : 0;
+
+        // right
+        var rotationalOffset = Offset(
+              cos(_rotateAngle) - 1, // x
+              sin(_rotateAngle), // y
+            ) *
+            update.delta.dx /
+            2;
+        updatedXPosition += rotationalOffset.dx;
+        updatedYPosition += rotationalOffset.dy;
 
         break;
       case ScaleDirection.topLeft:
@@ -479,15 +506,41 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
         updatedHeight = newHeight > 0 ? newHeight : 0;
         updatedWidth = newWidth > 0 ? newWidth : 0;
-        updatedYPosition += dy;
-        updatedXPosition += dx;
+
+        // left
+        var rotationalOffset = Offset(
+              cos(_rotateAngle) + 1, // x
+              sin(_rotateAngle), // y
+            ) *
+            update.delta.dx /
+            2;
+        // top
+        var rotationalOffset2 = Offset(
+              -sin(_rotateAngle),
+              cos(_rotateAngle) + 1,
+            ) *
+            update.delta.dy /
+            2;
+
+        updatedXPosition += rotationalOffset.dx + rotationalOffset2.dx;
+        updatedYPosition += rotationalOffset.dy + rotationalOffset2.dy;
 
         break;
 
       case ScaleDirection.topCenter:
         double newHeight = updatedHeight -= dy;
         updatedHeight = newHeight > 0 ? newHeight : 0;
-        updatedYPosition += dy;
+
+        // top
+        var rotationalOffset = Offset(
+              -sin(_rotateAngle),
+              cos(_rotateAngle) + 1,
+            ) *
+            update.delta.dy /
+            2;
+
+        updatedXPosition += rotationalOffset.dx;
+        updatedYPosition += rotationalOffset.dy;
 
         break;
 
@@ -497,7 +550,24 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
         updatedHeight = newHeight > 0 ? newHeight : 0;
         updatedWidth = newWidth > 0 ? newWidth : 0;
-        updatedYPosition += dy;
+
+        // right
+        var rotationalOffset = Offset(
+              cos(_rotateAngle) - 1, // x
+              sin(_rotateAngle), // y
+            ) *
+            update.delta.dx /
+            2;
+        // top
+        var rotationalOffset2 = Offset(
+              -sin(_rotateAngle),
+              cos(_rotateAngle) + 1,
+            ) *
+            update.delta.dy /
+            2;
+
+        updatedXPosition += rotationalOffset.dx + rotationalOffset2.dx;
+        updatedYPosition += rotationalOffset.dy + rotationalOffset2.dy;
 
         break;
 
@@ -508,18 +578,62 @@ class InteractiveBoxState extends State<InteractiveBox> {
         updatedWidth = newWidth > 0 ? newWidth : 0;
         updatedHeight = newHeight > 0 ? newHeight : 0;
 
-        updatedXPosition += dx;
+        // left
+        var rotationalOffset = Offset(
+              cos(_rotateAngle) + 1, // x
+              sin(_rotateAngle), // y
+            ) *
+            update.delta.dx /
+            2;
+        // bottom
+        var rotationalOffset2 = Offset(
+              -sin(_rotateAngle),
+              cos(_rotateAngle) - 1,
+            ) *
+            update.delta.dy /
+            2;
+
+        updatedXPosition += rotationalOffset.dx + rotationalOffset2.dx;
+        updatedYPosition += rotationalOffset.dy + rotationalOffset2.dy;
 
         break;
       case ScaleDirection.bottomCenter:
         double newHeight = updatedHeight + dy;
         updatedHeight = newHeight > 0 ? newHeight : 0;
 
+        // bottom
+        var rotationalOffset = Offset(
+              -sin(_rotateAngle),
+              cos(_rotateAngle) - 1,
+            ) *
+            update.delta.dy /
+            2;
+
+        updatedXPosition += rotationalOffset.dx;
+        updatedYPosition += rotationalOffset.dy;
+
         break;
       case ScaleDirection.bottomRight:
         double newHeight = updatedHeight + dy;
         double newWidth = updatedWidth + dx;
 
+        // right
+        var rotationalOffset = Offset(
+              cos(_rotateAngle) - 1, // x
+              sin(_rotateAngle), // y
+            ) *
+            update.delta.dx /
+            2;
+        // bottom
+        var rotationalOffset2 = Offset(
+              -sin(_rotateAngle),
+              cos(_rotateAngle) - 1,
+            ) *
+            update.delta.dy /
+            2;
+
+        updatedXPosition += rotationalOffset.dx + rotationalOffset2.dx;
+        updatedYPosition += rotationalOffset.dy + rotationalOffset2.dy;
         updatedWidth = newWidth > 0 ? newWidth : 0;
         updatedHeight = newHeight > 0 ? newHeight : 0;
 
@@ -536,15 +650,6 @@ class InteractiveBoxState extends State<InteractiveBox> {
       updatedYPosition = _y;
       updatedHeight = widget.maxHeight!;
     }
-
-    // debugPrint("""
-    //   x: $updatedXPosition,
-    //   y: $updatedYPosition,
-    //   w: $updatedWidth,
-    //   h: $updatedHeight,
-    //   dx: $dx,
-    //   dy: $dy
-    // """);
 
     setState(() {
       _width = updatedWidth;
