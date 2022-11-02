@@ -237,6 +237,17 @@ class InteractiveBoxState extends State<InteractiveBox> {
         showCornerDots: isScaling,
         child: child,
       );
+    } else {
+      child = Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: defaultScaleBorderWidth,
+            color: Colors.transparent,
+          ),
+          shape: BoxShape.rectangle,
+        ),
+        child: child,
+      );
     }
 
     // Rotating

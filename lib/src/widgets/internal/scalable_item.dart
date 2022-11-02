@@ -53,7 +53,7 @@ class ScalableItem extends StatelessWidget {
         overScaleBorderDecoration ??
             BoxDecoration(
               border: Border.all(
-                width: 5,
+                width: defaultScaleBorderWidth,
                 color: computedDotColor,
               ),
               shape: BoxShape.rectangle,
@@ -63,7 +63,7 @@ class ScalableItem extends StatelessWidget {
         defaultScaleBorderDecoration ??
             BoxDecoration(
               border: Border.all(
-                width: 5,
+                width: defaultScaleBorderWidth,
                 color: Colors.grey[100]!,
               ),
               shape: BoxShape.rectangle,
