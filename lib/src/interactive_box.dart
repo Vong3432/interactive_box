@@ -199,77 +199,62 @@ class InteractiveBoxState extends State<InteractiveBox> {
     ///
 
     // Scaling, this is the bottomest.
-    if (widget.includedActions.contains(ControlActionType.scale)) {
-      child = ScalableItem(
-        // dot: widget.dot,
-        cornerDotColor: widget.scaleDotColor,
-        overScaleCornerDotColor: widget.overScaleDotColor,
-        overScaleBorderDecoration: widget.overScaleBorderDecoration,
-        defaultScaleBorderDecoration: widget.defaultScaleBorderDecoration,
-        showOverScaleBorder: isOverScale && widget.showOverscaleBorder,
-        onAnyDotDraggingEnd: (details) {
-          _onScalingEnd(details);
-        },
-        onTopLeftDotDragging: (details) {
-          _onScaling(details, ScaleDirection.topLeft);
-        },
-        onTopCenterDotDragging: (details) {
-          _onScaling(details, ScaleDirection.topCenter);
-        },
-        onTopRightDotDragging: (details) {
-          _onScaling(details, ScaleDirection.topRight);
-        },
-        onBottomLeftDotDragging: (details) {
-          _onScaling(details, ScaleDirection.bottomLeft);
-        },
-        onBottomCenterDotDragging: (details) {
-          _onScaling(details, ScaleDirection.bottomCenter);
-        },
-        onBottomRightDotDragging: (details) {
-          _onScaling(details, ScaleDirection.bottomRight);
-        },
-        onCenterLeftDotDragging: (details) {
-          _onScaling(details, ScaleDirection.centerLeft);
-        },
-        onCenterRightDotDragging: (details) {
-          _onScaling(details, ScaleDirection.centerRight);
-        },
-        showCornerDots: isScaling,
-        child: child,
-      );
-    } else {
-      child = Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            width: defaultScaleBorderWidth,
-            color: Colors.transparent,
-          ),
-          shape: BoxShape.rectangle,
-        ),
-        child: child,
-      );
-    }
+    child = ScalableItem(
+      // dot: widget.dot,
+      cornerDotColor: widget.scaleDotColor,
+      overScaleCornerDotColor: widget.overScaleDotColor,
+      overScaleBorderDecoration: widget.overScaleBorderDecoration,
+      defaultScaleBorderDecoration: widget.defaultScaleBorderDecoration,
+      showOverScaleBorder: isOverScale && widget.showOverscaleBorder,
+      onAnyDotDraggingEnd: (details) {
+        _onScalingEnd(details);
+      },
+      onTopLeftDotDragging: (details) {
+        _onScaling(details, ScaleDirection.topLeft);
+      },
+      onTopCenterDotDragging: (details) {
+        _onScaling(details, ScaleDirection.topCenter);
+      },
+      onTopRightDotDragging: (details) {
+        _onScaling(details, ScaleDirection.topRight);
+      },
+      onBottomLeftDotDragging: (details) {
+        _onScaling(details, ScaleDirection.bottomLeft);
+      },
+      onBottomCenterDotDragging: (details) {
+        _onScaling(details, ScaleDirection.bottomCenter);
+      },
+      onBottomRightDotDragging: (details) {
+        _onScaling(details, ScaleDirection.bottomRight);
+      },
+      onCenterLeftDotDragging: (details) {
+        _onScaling(details, ScaleDirection.centerLeft);
+      },
+      onCenterRightDotDragging: (details) {
+        _onScaling(details, ScaleDirection.centerRight);
+      },
+      showCornerDots: isScaling,
+      child: child,
+    );
 
     // Rotating
-    if (widget.includedActions.contains(ControlActionType.rotate)) {
-      child = RotatableItem(
-        rotateIndicatorSpacing: widget.rotateIndicatorSpacing,
-        rotateIndicator: widget.rotateIndicator,
-        showRotatingIcon: isRotating,
-        initialRotateAngle: widget.initialRotateAngle,
-        onRotating: (rotateAngle) {
-          _rotateAngle = rotateAngle;
-          _notifyParentWhenInteracting();
-          _toggleIsPerforming(true);
-        },
-        onRotatingEnd: (double finalAngle) {
-          _rotateAngle = finalAngle;
-          _notifyParentAfterInteracted();
-          _toggleIsPerforming(false);
-        },
-        child: child,
-      );
-    }
+    child = RotatableItem(
+      rotateIndicatorSpacing: widget.rotateIndicatorSpacing,
+      rotateIndicator: widget.rotateIndicator,
+      showRotatingIcon: isRotating,
+      initialRotateAngle: widget.initialRotateAngle,
+      onRotating: (rotateAngle) {
+        _rotateAngle = rotateAngle;
+        _notifyParentWhenInteracting();
+        _toggleIsPerforming(true);
+      },
+      onRotatingEnd: (double finalAngle) {
+        _rotateAngle = finalAngle;
+        _notifyParentAfterInteracted();
+        _toggleIsPerforming(false);
+      },
+      child: child,
+    );
 
     child = MultipleCircularMenu(
       x: _x,
