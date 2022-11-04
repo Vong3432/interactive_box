@@ -87,7 +87,7 @@ class InteractiveBox extends StatefulWidget {
   /// The maximum height that the [child] can be scaled
   final double? maxHeight;
 
-  /// The rotate angle for [child].
+  /// The rotate angle for [child] in radian.
   final double initialRotateAngle;
 
   /// Default will include all supported actions.
@@ -97,7 +97,7 @@ class InteractiveBox extends StatefulWidget {
   /// The full degree wanted for the circular menu.
   final double? circularMenuDegree;
 
-  /// Distance of the spread distance between the [child] and the circular menu.
+  // Distance of the spread distance between the [child] and the circular menu.
   // final double circularMenuSpreadMultiplier;
 
   /// A callback that will be called whenever an action (by pressing icon) is selected
