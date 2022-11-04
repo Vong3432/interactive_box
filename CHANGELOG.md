@@ -1,6 +1,14 @@
 # Changelog
 This changelog uses [semantic versioning](https://semver.org) for documenting changes. 
 
+## 0.2.5
+#### InteractiveBox 
+- Adds ability to use only specific scale directions
+- Fixes effects not applying if includedActions does not contain the relevant actions.
+
+#### docs
+- Updates readme for example.
+
 ## 0.2.4
 #### InteractiveBox 
 - Fixes incorrect scaling after rotating.
