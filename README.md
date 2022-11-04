@@ -91,6 +91,15 @@ InteractiveBox(
       ...,
       scaleDotColor: Colors.purple[600]!,
       overScaleDotColor: Colors.red[400]!,
+
+      // only use specific scale directions
+      includedScaleDirections: const [
+        ScaleDirection.topCenter,
+        ScaleDirection.bottomCenter,
+        ScaleDirection.topRight,
+      ],
+
+      // borders
       defaultScaleBorderDecoration: BoxDecoration(
         border: Border.all(
           width: 5,

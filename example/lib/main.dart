@@ -291,6 +291,11 @@ class Content extends StatelessWidget {
               ControlActionType.rotate,
               ControlActionType.scale,
             ],
+            includedScaleDirections: const [
+              ScaleDirection.topCenter,
+              ScaleDirection.bottomCenter,
+              ScaleDirection.topRight,
+            ],
             child: tables[index].image,
           );
         })

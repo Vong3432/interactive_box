@@ -55,6 +55,16 @@ class InteractiveBox extends StatefulWidget {
     this.onTap,
     this.scaleDotColor = defaultDotColor,
     this.overScaleDotColor = defaultOverscaleDotColor,
+    this.includedScaleDirections = const [
+      ScaleDirection.topLeft,
+      ScaleDirection.topCenter,
+      ScaleDirection.topRight,
+      ScaleDirection.centerRight,
+      ScaleDirection.bottomRight,
+      ScaleDirection.bottomCenter,
+      ScaleDirection.bottomLeft,
+      ScaleDirection.centerLeft,
+    ],
     // this.dot,
   }) : super(key: key);
 
@@ -125,6 +135,10 @@ class InteractiveBox extends StatefulWidget {
   final Color scaleDotColor;
   final Color overScaleDotColor;
   // final Widget? dot;
+
+  /// The scale directions you want to support.
+  /// Default will included all directions.
+  final List<ScaleDirection> includedScaleDirections;
 
   @override
   InteractiveBoxState createState() => InteractiveBoxState();
@@ -206,6 +220,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
       overScaleBorderDecoration: widget.overScaleBorderDecoration,
       defaultScaleBorderDecoration: widget.defaultScaleBorderDecoration,
       showOverScaleBorder: isOverScale && widget.showOverscaleBorder,
+      includedScaleDirections: widget.includedScaleDirections,
       onAnyDotDraggingEnd: (details) {
         _onScalingEnd(details);
       },

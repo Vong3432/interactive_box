@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../consts/scale_item.const.dart';
+import '../../enums/scale_direction_enum.dart';
 
 class ScalableItem extends StatelessWidget {
   const ScalableItem({
     super.key,
     required this.child,
     required this.showCornerDots,
+    required this.includedScaleDirections,
     // this.dot,
     this.showOverScaleBorder = false,
     this.onBottomLeftDotDragging,
@@ -40,6 +42,7 @@ class ScalableItem extends StatelessWidget {
   final Function(DragUpdateDetails)? onCenterLeftDotDragging;
   final Function(DragUpdateDetails)? onCenterRightDotDragging;
   final Function(DragEndDetails)? onAnyDotDraggingEnd;
+  final List<ScaleDirection> includedScaleDirections;
 
   @override
   Widget build(BuildContext context) {
@@ -85,148 +88,156 @@ class ScalableItem extends StatelessWidget {
         ),
 
         // top left
-        GestureDetector(
-          onPanUpdate: (details) {
-            if (onTopLeftDotDragging != null) {
-              onTopLeftDotDragging!(details);
-            }
-          },
-          onPanEnd: ((details) {
-            if (onAnyDotDraggingEnd != null) {
-              onAnyDotDraggingEnd!(details);
-            }
-          }),
-          child: Container(
-            alignment: Alignment.topLeft,
-            child: _buildDot(computedDotColor),
+        if (includedScaleDirections.contains(ScaleDirection.topLeft))
+          GestureDetector(
+            onPanUpdate: (details) {
+              if (onTopLeftDotDragging != null) {
+                onTopLeftDotDragging!(details);
+              }
+            },
+            onPanEnd: ((details) {
+              if (onAnyDotDraggingEnd != null) {
+                onAnyDotDraggingEnd!(details);
+              }
+            }),
+            child: Container(
+              alignment: Alignment.topLeft,
+              child: _buildDot(computedDotColor),
+            ),
           ),
-        ),
 
         // top center
-        GestureDetector(
-          onPanUpdate: (details) {
-            if (onTopCenterDotDragging != null) {
-              onTopCenterDotDragging!(details);
-            }
-          },
-          onPanEnd: ((details) {
-            if (onAnyDotDraggingEnd != null) {
-              onAnyDotDraggingEnd!(details);
-            }
-          }),
-          child: Container(
-            alignment: Alignment.topCenter,
-            child: _buildDot(computedDotColor),
+        if (includedScaleDirections.contains(ScaleDirection.topCenter))
+          GestureDetector(
+            onPanUpdate: (details) {
+              if (onTopCenterDotDragging != null) {
+                onTopCenterDotDragging!(details);
+              }
+            },
+            onPanEnd: ((details) {
+              if (onAnyDotDraggingEnd != null) {
+                onAnyDotDraggingEnd!(details);
+              }
+            }),
+            child: Container(
+              alignment: Alignment.topCenter,
+              child: _buildDot(computedDotColor),
+            ),
           ),
-        ),
 
         // top right
-        GestureDetector(
-          onPanUpdate: (details) {
-            if (onTopRightDotDragging != null) {
-              onTopRightDotDragging!(details);
-            }
-          },
-          onPanEnd: ((details) {
-            if (onAnyDotDraggingEnd != null) {
-              onAnyDotDraggingEnd!(details);
-            }
-          }),
-          child: Container(
-            alignment: Alignment.topRight,
-            child: _buildDot(computedDotColor),
+        if (includedScaleDirections.contains(ScaleDirection.topRight))
+          GestureDetector(
+            onPanUpdate: (details) {
+              if (onTopRightDotDragging != null) {
+                onTopRightDotDragging!(details);
+              }
+            },
+            onPanEnd: ((details) {
+              if (onAnyDotDraggingEnd != null) {
+                onAnyDotDraggingEnd!(details);
+              }
+            }),
+            child: Container(
+              alignment: Alignment.topRight,
+              child: _buildDot(computedDotColor),
+            ),
           ),
-        ),
 
         // bottom left
-        GestureDetector(
-          onPanUpdate: (details) {
-            if (onBottomLeftDotDragging != null) {
-              onBottomLeftDotDragging!(details);
-            }
-          },
-          onPanEnd: ((details) {
-            if (onAnyDotDraggingEnd != null) {
-              onAnyDotDraggingEnd!(details);
-            }
-          }),
-          child: Container(
-            alignment: Alignment.bottomLeft,
-            child: _buildDot(computedDotColor),
+        if (includedScaleDirections.contains(ScaleDirection.bottomLeft))
+          GestureDetector(
+            onPanUpdate: (details) {
+              if (onBottomLeftDotDragging != null) {
+                onBottomLeftDotDragging!(details);
+              }
+            },
+            onPanEnd: ((details) {
+              if (onAnyDotDraggingEnd != null) {
+                onAnyDotDraggingEnd!(details);
+              }
+            }),
+            child: Container(
+              alignment: Alignment.bottomLeft,
+              child: _buildDot(computedDotColor),
+            ),
           ),
-        ),
 
         // bottom center
-        GestureDetector(
-          onPanUpdate: (details) {
-            if (onBottomCenterDotDragging != null) {
-              onBottomCenterDotDragging!(details);
-            }
-          },
-          onPanEnd: ((details) {
-            if (onAnyDotDraggingEnd != null) {
-              onAnyDotDraggingEnd!(details);
-            }
-          }),
-          child: Container(
-            alignment: Alignment.bottomCenter,
-            child: _buildDot(computedDotColor),
+        if (includedScaleDirections.contains(ScaleDirection.bottomCenter))
+          GestureDetector(
+            onPanUpdate: (details) {
+              if (onBottomCenterDotDragging != null) {
+                onBottomCenterDotDragging!(details);
+              }
+            },
+            onPanEnd: ((details) {
+              if (onAnyDotDraggingEnd != null) {
+                onAnyDotDraggingEnd!(details);
+              }
+            }),
+            child: Container(
+              alignment: Alignment.bottomCenter,
+              child: _buildDot(computedDotColor),
+            ),
           ),
-        ),
 
         // bottom right
-        GestureDetector(
-          onPanUpdate: (details) {
-            if (onBottomRightDotDragging != null) {
-              onBottomRightDotDragging!(details);
-            }
-          },
-          onPanEnd: ((details) {
-            if (onAnyDotDraggingEnd != null) {
-              onAnyDotDraggingEnd!(details);
-            }
-          }),
-          child: Container(
-            alignment: Alignment.bottomRight,
-            child: _buildDot(computedDotColor),
+        if (includedScaleDirections.contains(ScaleDirection.bottomRight))
+          GestureDetector(
+            onPanUpdate: (details) {
+              if (onBottomRightDotDragging != null) {
+                onBottomRightDotDragging!(details);
+              }
+            },
+            onPanEnd: ((details) {
+              if (onAnyDotDraggingEnd != null) {
+                onAnyDotDraggingEnd!(details);
+              }
+            }),
+            child: Container(
+              alignment: Alignment.bottomRight,
+              child: _buildDot(computedDotColor),
+            ),
           ),
-        ),
 
         // center left
-        GestureDetector(
-          onPanUpdate: (details) {
-            if (onCenterLeftDotDragging != null) {
-              onCenterLeftDotDragging!(details);
-            }
-          },
-          onPanEnd: ((details) {
-            if (onAnyDotDraggingEnd != null) {
-              onAnyDotDraggingEnd!(details);
-            }
-          }),
-          child: Container(
-            alignment: Alignment.centerLeft,
-            child: _buildDot(computedDotColor),
+        if (includedScaleDirections.contains(ScaleDirection.centerLeft))
+          GestureDetector(
+            onPanUpdate: (details) {
+              if (onCenterLeftDotDragging != null) {
+                onCenterLeftDotDragging!(details);
+              }
+            },
+            onPanEnd: ((details) {
+              if (onAnyDotDraggingEnd != null) {
+                onAnyDotDraggingEnd!(details);
+              }
+            }),
+            child: Container(
+              alignment: Alignment.centerLeft,
+              child: _buildDot(computedDotColor),
+            ),
           ),
-        ),
 
         // center right
-        GestureDetector(
-          onPanUpdate: (details) {
-            if (onCenterRightDotDragging != null) {
-              onCenterRightDotDragging!(details);
-            }
-          },
-          onPanEnd: ((details) {
-            if (onAnyDotDraggingEnd != null) {
-              onAnyDotDraggingEnd!(details);
-            }
-          }),
-          child: Container(
-            alignment: Alignment.centerRight,
-            child: _buildDot(computedDotColor),
+        if (includedScaleDirections.contains(ScaleDirection.centerRight))
+          GestureDetector(
+            onPanUpdate: (details) {
+              if (onCenterRightDotDragging != null) {
+                onCenterRightDotDragging!(details);
+              }
+            },
+            onPanEnd: ((details) {
+              if (onAnyDotDraggingEnd != null) {
+                onAnyDotDraggingEnd!(details);
+              }
+            }),
+            child: Container(
+              alignment: Alignment.centerRight,
+              child: _buildDot(computedDotColor),
+            ),
           ),
-        ),
       ],
     );
   }
