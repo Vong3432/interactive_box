@@ -216,6 +216,12 @@ class Content extends StatelessWidget {
 
           return InteractiveBox(
             key: ValueKey(table.id),
+            defaultScaleBorderDecoration: BoxDecoration(
+              border: Border.all(
+                width: 0,
+                color: Colors.transparent,
+              ),
+            ),
             // hideActionIconsWhenInteracting: false,
             initialWidth: table.width,
             initialHeight: table.height,
@@ -291,7 +297,13 @@ class Content extends StatelessWidget {
               ControlActionType.rotate,
               ControlActionType.scale,
             ],
-            child: tables[index].image,
+            shape: Shape.rectangle,
+            shapeStyle: ShapeStyle(
+              borderWidth: 5,
+              borderColor: Colors.red[200],
+              backgroundColor: Colors.red,
+            ),
+            // child: tables[index].image,
           );
         })
       ],
