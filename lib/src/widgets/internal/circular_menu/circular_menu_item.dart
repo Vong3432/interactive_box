@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../consts/circular_menu.const.dart';
-import '../../enums/control_action_type_enum.dart';
+import '../../../consts/circular_menu.const.dart';
+import '../../../enums/control_action_type_enum.dart';
 
 class CircularMenuItem extends StatelessWidget {
   const CircularMenuItem({

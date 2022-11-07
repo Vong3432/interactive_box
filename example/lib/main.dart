@@ -225,7 +225,7 @@ class Content extends StatelessWidget {
             initialRotateAngle: table.rotateAngle,
             circularMenuDegree: 180,
             iconSize: 40,
-            onInteractiveActionPerformed: (_, boxInfo) {
+            onInteractiveActionPerforming: (_, boxInfo) {
               /// Copy boxInfo and update to table after performing interactive actions
               /// so that when we toggle the icons in [onTap] method below, all tables
               /// will be updated correctly (persist their position, size, rotate angle)...
@@ -290,11 +290,6 @@ class Content extends StatelessWidget {
               ControlActionType.move,
               ControlActionType.rotate,
               ControlActionType.scale,
-            ],
-            includedScaleDirections: const [
-              ScaleDirection.topCenter,
-              ScaleDirection.bottomCenter,
-              ScaleDirection.topRight,
             ],
             child: tables[index].image,
           );

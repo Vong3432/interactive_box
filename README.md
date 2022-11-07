@@ -28,10 +28,16 @@ Stack(
     InteractiveBox(
       initialWidth: width, // required
       initialHeight: height, // required
+      // If you want to show a widget
       child: Image.asset(
         "assets/table.png",
         fit: BoxFit.fill,
-      ), // required
+      ), 
+      /**
+        If you want to show a shape instead of a widget, please refers to [Customize shape] in this README file below.
+
+        Note: Both [shape] and [child] cannot be included together.
+       */
     )
   ]
 )
@@ -59,6 +65,21 @@ InteractiveBox(
         ControlActionType.copy,
         ControlActionType.move,
       ],
+)
+```
+
+### Customize shape (when ``shape`` is provided)
+Refers to [Shape](lib/src/enums/shape_enum.dart) for more shapes.
+```dart
+InteractiveBox(
+      // properties from simple use
+      ...,
+      shape: Shape.oval,
+      shapeStyle: const ShapeStyle(
+        borderWidth: 5,
+        borderColor: Colors.red,
+        backgroundColor: Colors.black,
+      ),
 )
 ```
 

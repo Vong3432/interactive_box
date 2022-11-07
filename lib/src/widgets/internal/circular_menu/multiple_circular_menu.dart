@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import '../../consts/circular_menu.const.dart';
+import '../../../consts/circular_menu.const.dart';
 
 /// A widget that show circular menu
 class MultipleCircularMenu extends StatefulWidget {

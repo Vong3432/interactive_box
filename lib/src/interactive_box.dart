@@ -1,23 +1,25 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:interactive_box/interactive_box.dart';
+import 'package:interactive_box/src/widgets/internal/shapes/circle_shape.dart';
+import 'package:interactive_box/src/widgets/internal/shapes/oval_shape.dart';
 
-import 'models/interactive_box_info.dart';
+import 'helpers/scale_helper.dart';
+import 'models/scale_info.dart';
 import 'typedef.dart';
 import 'consts/scale_item.const.dart';
 import 'consts/circular_menu.const.dart';
-import 'enums/control_action_type_enum.dart';
-import 'enums/scale_direction_enum.dart';
-import 'widgets/internal/circular_menu_item.dart';
-import 'widgets/internal/multiple_circular_menu.dart';
+import 'widgets/internal/circular_menu/circular_menu_item.dart';
+import 'widgets/internal/circular_menu/multiple_circular_menu.dart';
 import 'widgets/internal/rotatable_item.dart';
 import 'widgets/internal/scalable_item.dart';
+import 'widgets/internal/shapes/rectangle_shape.dart';
 
 /// A widget that supports controllable actions from [ControlActionType].
 class InteractiveBox extends StatefulWidget {
   const InteractiveBox({
     Key? key,
-    required this.child,
+    this.child,
+    this.shape,
     required this.initialWidth,
     required this.initialHeight,
     this.maxWidth,
@@ -37,6 +39,7 @@ class InteractiveBox extends StatefulWidget {
     this.showOverscaleBorder = true,
     this.overScaleBorderDecoration,
     this.defaultScaleBorderDecoration,
+    this.shapeStyle,
     this.iconSize = defaultIconSize,
     this.circularMenuIconColor = defaultMenuIconColor,
     this.copyIcon = const Icon(Icons.copy),
@@ -55,18 +58,15 @@ class InteractiveBox extends StatefulWidget {
     this.onTap,
     this.scaleDotColor = defaultDotColor,
     this.overScaleDotColor = defaultOverscaleDotColor,
-    this.includedScaleDirections = const [
-      ScaleDirection.topLeft,
-      ScaleDirection.topCenter,
-      ScaleDirection.topRight,
-      ScaleDirection.centerRight,
-      ScaleDirection.bottomRight,
-      ScaleDirection.bottomCenter,
-      ScaleDirection.bottomLeft,
-      ScaleDirection.centerLeft,
-    ],
+    this.includedScaleDirections,
     // this.dot,
-  }) : super(key: key);
+  })  : assert(child != null || shape != null,
+            "Either child or shape must be provided."),
+        assert(child != null && shape == null || shape != null && child == null,
+            "Only can provide either child or shape."),
+        assert(shape == Shape.circle ? includedScaleDirections == null : true,
+            "When [shape] is circle, no need pass [includedScaleDirections] since they will be overwritted."),
+        super(key: key);
 
   /// Whether the border should show a border when overscaled.
   final bool showOverscaleBorder;
@@ -102,7 +102,10 @@ class InteractiveBox extends StatefulWidget {
 
   /// Default will include all supported actions.
   final List<ControlActionType> includedActions;
-  final Widget child;
+
+  /// A canvas that will be drawn based on the shape.
+  final Shape? shape;
+  final Widget? child;
 
   /// The full degree wanted for the circular menu.
   final double? circularMenuDegree;
@@ -134,11 +137,24 @@ class InteractiveBox extends StatefulWidget {
 
   final Color scaleDotColor;
   final Color overScaleDotColor;
-  // final Widget? dot;
 
   /// The scale directions you want to support.
-  /// Default will included all directions.
-  final List<ScaleDirection> includedScaleDirections;
+  ///
+  /// Default will included all directions for [shape] that are not [Shape.circle].
+  ///
+  /// Warning:
+  /// - Do note that when [shape] is [Shape.circle], includes this param will throw an exception
+  ///   since this param will be overwritted even you pass a different directions with:
+  ///   - [ScaleDirection.topLeft]
+  ///   - [ScaleDirection.topRight]
+  ///   - [ScaleDirection.bottomLeft]
+  ///   - [ScaleDirection.bottomRight]
+  ///
+  ///
+  final List<ScaleDirection>? includedScaleDirections;
+
+  /// The style configuration to apply for [shape].
+  final ShapeStyle? shapeStyle;
 
   @override
   InteractiveBoxState createState() => InteractiveBoxState();
@@ -198,7 +214,36 @@ class InteractiveBoxState extends State<InteractiveBox> {
     final bool isOverScale =
         _isWidthOverscale(_width) && _isHeightOverscale(_height);
 
-    Widget child = widget.child;
+    Widget child = Container();
+
+    if (widget.child != null) {
+      child = widget.child!;
+    } else {
+      switch (widget.shape) {
+        case Shape.circle:
+          child = CircleShape(
+            radius: _width / 2,
+            style: widget.shapeStyle,
+          );
+          break;
+        case Shape.oval:
+          child = OvalShape(
+            width: _width,
+            height: _height,
+            style: widget.shapeStyle,
+          );
+          break;
+        case Shape.rectangle:
+          child = RectangleShape(
+            width: _width,
+            height: _height,
+            style: widget.shapeStyle,
+          );
+          break;
+        default:
+          break;
+      }
+    }
 
     /// Build widget tree of [child] from the bottom to the top.
     ///
@@ -220,7 +265,25 @@ class InteractiveBoxState extends State<InteractiveBox> {
       overScaleBorderDecoration: widget.overScaleBorderDecoration,
       defaultScaleBorderDecoration: widget.defaultScaleBorderDecoration,
       showOverScaleBorder: isOverScale && widget.showOverscaleBorder,
-      includedScaleDirections: widget.includedScaleDirections,
+      includedScaleDirections: widget.shape == Shape.circle
+          ? const [
+              ScaleDirection.topLeft,
+              ScaleDirection.topRight,
+              ScaleDirection.bottomRight,
+              ScaleDirection.bottomLeft,
+            ]
+          : widget.includedScaleDirections == null
+              ? const [
+                  ScaleDirection.topLeft,
+                  ScaleDirection.topCenter,
+                  ScaleDirection.topRight,
+                  ScaleDirection.centerRight,
+                  ScaleDirection.bottomRight,
+                  ScaleDirection.bottomCenter,
+                  ScaleDirection.bottomLeft,
+                  ScaleDirection.centerLeft,
+                ]
+              : widget.includedScaleDirections!,
       onAnyDotDraggingEnd: (details) {
         _onScalingEnd(details);
       },
@@ -279,6 +342,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
       iconSize: widget.iconSize,
       childWidth: _width,
       childHeight: _height,
+
       showItems: _showItems && !_isPerforming,
       items: _buildActionItems(),
       child: child,
@@ -458,199 +522,30 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
     _toggleIsPerforming(true);
 
-    double dx = update.delta.dx;
-    double dy = update.delta.dy;
+    final ScaleInfo current = ScaleInfo(
+      width: _width,
+      height: _height,
+      x: _x,
+      y: _y,
+    );
+    final double dx = update.delta.dx;
+    final double dy = update.delta.dy;
+    final ScaleInfoOpt scaleInfoOpt = ScaleInfoOpt(
+      shape: widget.shape ?? Shape.rectangle,
+      scaleDirection: scaleDirection,
+      dx: dx,
+      dy: dy,
+      rotateAngle: _rotateAngle,
+    );
 
-    double updatedWidth = _width;
-    double updatedHeight = _height;
-    double updatedXPosition = _x;
-    double updatedYPosition = _y;
-
-    ///
-    /// Scale widget from corners calculation
-    ///
-    /// ref: https://stackoverflow.com/a/60964980
-    /// Author: @Kherel
-    ///
-    /// Rotational offset
-    /// - Fix x, y position after scaling if rotated
-    ///
-    /// https://stackoverflow.com/a/73930511
-    /// Author: @Steve
-    ///
-    switch (scaleDirection) {
-      case ScaleDirection.centerLeft:
-        double newWidth = updatedWidth - dx;
-
-        updatedWidth = newWidth > 0 ? newWidth : 0;
-
-        // left
-        var rotationalOffset = Offset(
-              cos(_rotateAngle) + 1, // x
-              sin(_rotateAngle), // y
-            ) *
-            update.delta.dx /
-            2;
-        updatedXPosition += rotationalOffset.dx;
-        updatedYPosition += rotationalOffset.dy;
-
-        break;
-
-      case ScaleDirection.centerRight:
-        double newWidth = updatedWidth + dx;
-        updatedWidth = newWidth > 0 ? newWidth : 0;
-
-        // right
-        var rotationalOffset = Offset(
-              cos(_rotateAngle) - 1, // x
-              sin(_rotateAngle), // y
-            ) *
-            update.delta.dx /
-            2;
-        updatedXPosition += rotationalOffset.dx;
-        updatedYPosition += rotationalOffset.dy;
-
-        break;
-      case ScaleDirection.topLeft:
-        double newHeight = updatedHeight -= dy;
-        double newWidth = updatedWidth - dx;
-
-        updatedHeight = newHeight > 0 ? newHeight : 0;
-        updatedWidth = newWidth > 0 ? newWidth : 0;
-
-        // left
-        var rotationalOffset = Offset(
-              cos(_rotateAngle) + 1, // x
-              sin(_rotateAngle), // y
-            ) *
-            update.delta.dx /
-            2;
-        // top
-        var rotationalOffset2 = Offset(
-              -sin(_rotateAngle),
-              cos(_rotateAngle) + 1,
-            ) *
-            update.delta.dy /
-            2;
-
-        updatedXPosition += rotationalOffset.dx + rotationalOffset2.dx;
-        updatedYPosition += rotationalOffset.dy + rotationalOffset2.dy;
-
-        break;
-
-      case ScaleDirection.topCenter:
-        double newHeight = updatedHeight -= dy;
-        updatedHeight = newHeight > 0 ? newHeight : 0;
-
-        // top
-        var rotationalOffset = Offset(
-              -sin(_rotateAngle),
-              cos(_rotateAngle) + 1,
-            ) *
-            update.delta.dy /
-            2;
-
-        updatedXPosition += rotationalOffset.dx;
-        updatedYPosition += rotationalOffset.dy;
-
-        break;
-
-      case ScaleDirection.topRight:
-        double newHeight = updatedHeight -= dy;
-        double newWidth = updatedWidth + dx;
-
-        updatedHeight = newHeight > 0 ? newHeight : 0;
-        updatedWidth = newWidth > 0 ? newWidth : 0;
-
-        // right
-        var rotationalOffset = Offset(
-              cos(_rotateAngle) - 1, // x
-              sin(_rotateAngle), // y
-            ) *
-            update.delta.dx /
-            2;
-        // top
-        var rotationalOffset2 = Offset(
-              -sin(_rotateAngle),
-              cos(_rotateAngle) + 1,
-            ) *
-            update.delta.dy /
-            2;
-
-        updatedXPosition += rotationalOffset.dx + rotationalOffset2.dx;
-        updatedYPosition += rotationalOffset.dy + rotationalOffset2.dy;
-
-        break;
-
-      case ScaleDirection.bottomLeft:
-        double newHeight = updatedHeight + dy;
-        double newWidth = updatedWidth - dx;
-
-        updatedWidth = newWidth > 0 ? newWidth : 0;
-        updatedHeight = newHeight > 0 ? newHeight : 0;
-
-        // left
-        var rotationalOffset = Offset(
-              cos(_rotateAngle) + 1, // x
-              sin(_rotateAngle), // y
-            ) *
-            update.delta.dx /
-            2;
-        // bottom
-        var rotationalOffset2 = Offset(
-              -sin(_rotateAngle),
-              cos(_rotateAngle) - 1,
-            ) *
-            update.delta.dy /
-            2;
-
-        updatedXPosition += rotationalOffset.dx + rotationalOffset2.dx;
-        updatedYPosition += rotationalOffset.dy + rotationalOffset2.dy;
-
-        break;
-      case ScaleDirection.bottomCenter:
-        double newHeight = updatedHeight + dy;
-        updatedHeight = newHeight > 0 ? newHeight : 0;
-
-        // bottom
-        var rotationalOffset = Offset(
-              -sin(_rotateAngle),
-              cos(_rotateAngle) - 1,
-            ) *
-            update.delta.dy /
-            2;
-
-        updatedXPosition += rotationalOffset.dx;
-        updatedYPosition += rotationalOffset.dy;
-
-        break;
-      case ScaleDirection.bottomRight:
-        double newHeight = updatedHeight + dy;
-        double newWidth = updatedWidth + dx;
-
-        // right
-        var rotationalOffset = Offset(
-              cos(_rotateAngle) - 1, // x
-              sin(_rotateAngle), // y
-            ) *
-            update.delta.dx /
-            2;
-        // bottom
-        var rotationalOffset2 = Offset(
-              -sin(_rotateAngle),
-              cos(_rotateAngle) - 1,
-            ) *
-            update.delta.dy /
-            2;
-
-        updatedXPosition += rotationalOffset.dx + rotationalOffset2.dx;
-        updatedYPosition += rotationalOffset.dy + rotationalOffset2.dy;
-        updatedWidth = newWidth > 0 ? newWidth : 0;
-        updatedHeight = newHeight > 0 ? newHeight : 0;
-
-        break;
-      default:
-    }
+    final ScaleInfo scaleInfoAfterCalculation = ScaleHelper.getScaleInfo(
+      current: current,
+      options: scaleInfoOpt,
+    );
+    double updatedWidth = scaleInfoAfterCalculation.width;
+    double updatedHeight = scaleInfoAfterCalculation.height;
+    double updatedXPosition = scaleInfoAfterCalculation.x;
+    double updatedYPosition = scaleInfoAfterCalculation.y;
 
     if (_isWidthOverscale(updatedWidth)) {
       updatedXPosition = _x;
