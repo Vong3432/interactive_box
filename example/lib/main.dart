@@ -223,11 +223,9 @@ class Content extends StatelessWidget {
               ),
             ),
             // hideActionIconsWhenInteracting: false,
-            initialWidth: table.width,
-            initialHeight: table.height,
+            initialSize: Size(table.width, table.height),
             initialShowActionIcons: table.showIcons,
-            initialX: table.x,
-            initialY: table.y,
+            initialPosition: Offset(table.x, table.y),
             initialRotateAngle: table.rotateAngle,
             circularMenuDegree: 180,
             iconSize: 40,
@@ -249,11 +247,11 @@ class Content extends StatelessWidget {
 
               // START comment here if want to see the problem
               TableModel copiedTable = table.copyWith(
-                width: boxInfo.width,
-                height: boxInfo.height,
+                width: boxInfo.size.width,
+                height: boxInfo.size.height,
                 rotateAngle: boxInfo.rotateAngle,
-                x: boxInfo.x,
-                y: boxInfo.y,
+                x: boxInfo.position.dx,
+                y: boxInfo.position.dy,
               );
 
               onUpdate(copiedTable, index);
@@ -276,12 +274,12 @@ class Content extends StatelessWidget {
               if (actionType == ControlActionType.copy) {
                 TableModel copiedTable = table.copyWith(
                   id: const Uuid().v4(),
-                  width: boxInfo.width,
-                  height: boxInfo.height,
+                  width: boxInfo.size.width,
+                  height: boxInfo.size.height,
                   rotateAngle: boxInfo.rotateAngle,
                   showIcons: false,
-                  x: boxInfo.x + 50,
-                  y: boxInfo.y + 50,
+                  x: boxInfo.position.dx + 50,
+                  y: boxInfo.position.dy + 50,
                 );
 
                 onToggle(table.copyWith(showIcons: !table.showIcons), index);
@@ -297,6 +295,7 @@ class Content extends StatelessWidget {
               ControlActionType.rotate,
               ControlActionType.scale,
             ],
+            maxSize: const Size(300, 300),
             shape: Shape.rectangle,
             shapeStyle: ShapeStyle(
               borderWidth: 5,

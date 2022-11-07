@@ -26,13 +26,14 @@ The main idea of this widget is to allow integrating interactive features (e.g: 
 Stack(
   children: [
     InteractiveBox(
-      initialWidth: width, // required
-      initialHeight: height, // required
-      // If you want to show a widget
+      initialSize: Size(300, 300), // required
+
+      /*  If you want to show a widget */
       child: Image.asset(
         "assets/table.png",
         fit: BoxFit.fill,
       ), 
+
       /**
         If you want to show a shape instead of a widget, please refers to [Customize shape] in this README file below.
 
@@ -49,8 +50,7 @@ Stack(
 InteractiveBox(
       // properties from simple use
       ...,
-      initialX: 100, 
-      initialY: 100, 
+      initialPosition: Offset(100, 100),
       initialRotateAngle: 45, 
 )
 ```

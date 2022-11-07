@@ -2,41 +2,31 @@ import 'package:flutter/material.dart';
 
 @immutable
 class InteractiveBoxInfo {
-  final double width;
-  final double height;
-  final double x;
-  final double y;
+  final Size size;
+  final Offset position;
   final double rotateAngle;
 
   const InteractiveBoxInfo({
-    required this.width,
-    required this.height,
-    required this.x,
-    required this.y,
+    required this.size,
+    required this.position,
     required this.rotateAngle,
   });
 
   InteractiveBoxInfo copyWith(
-      {double? width,
-      double? height,
-      double? x,
-      double? y,
-      double? rotateAngle}) {
+      {Size? size, Offset? position, double? rotateAngle}) {
     return InteractiveBoxInfo(
-      width: width ?? this.width,
-      height: height ?? this.height,
-      x: x ?? this.x,
-      y: y ?? this.y,
+      size: size ?? this.size,
+      position: position ?? this.position,
       rotateAngle: rotateAngle ?? this.rotateAngle,
     );
   }
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {};
-    map["width"] = width;
-    map["height"] = height;
-    map["x"] = x;
-    map["y"] = y;
+    map["width"] = size.width;
+    map["height"] = size.height;
+    map["x"] = position.dx;
+    map["y"] = position.dy;
     map["rotateAngle"] = rotateAngle;
 
     return map;

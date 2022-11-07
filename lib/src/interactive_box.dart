@@ -20,10 +20,8 @@ class InteractiveBox extends StatefulWidget {
     Key? key,
     this.child,
     this.shape,
-    required this.initialWidth,
-    required this.initialHeight,
-    this.maxWidth,
-    this.maxHeight,
+    required this.initialSize,
+    this.maxSize,
     this.includedActions = const [
       ControlActionType.copy,
       ControlActionType.delete,
@@ -50,8 +48,7 @@ class InteractiveBox extends StatefulWidget {
     this.rotateIndicator,
     this.rotateIndicatorSpacing,
     this.initialRotateAngle = 0.0,
-    this.initialX = 0.0,
-    this.initialY = 0.0,
+    this.initialPosition = const Offset(0.0, 0.0),
     this.onActionSelected,
     this.onInteractiveActionPerforming,
     this.onInteractiveActionPerformed,
@@ -86,16 +83,11 @@ class InteractiveBox extends StatefulWidget {
   ///
   final bool hideActionIconsWhenInteracting;
 
-  final double initialX;
-  final double initialY;
-  final double initialWidth;
-  final double initialHeight;
+  final Offset initialPosition;
+  final Size initialSize;
 
-  /// The maximum width that the [child] can be scaled
-  final double? maxWidth;
-
-  /// The maximum height that the [child] can be scaled
-  final double? maxHeight;
+  /// The maximum size that the [child] can be scaled
+  final Size? maxSize;
 
   /// The rotate angle for [child] in radian.
   final double initialRotateAngle;
@@ -176,10 +168,10 @@ class InteractiveBoxState extends State<InteractiveBox> {
     super.initState();
 
     _showItems = widget.initialShowActionIcons;
-    _x = widget.initialX;
-    _y = widget.initialY;
-    _width = widget.initialWidth;
-    _height = widget.initialHeight;
+    _x = widget.initialPosition.dx;
+    _y = widget.initialPosition.dy;
+    _width = widget.initialSize.width;
+    _height = widget.initialSize.height;
     _rotateAngle = widget.initialRotateAngle;
   }
 
@@ -190,17 +182,17 @@ class InteractiveBoxState extends State<InteractiveBox> {
     if (oldWidget.initialShowActionIcons != widget.initialShowActionIcons) {
       _showItems = widget.initialShowActionIcons;
     }
-    if (oldWidget.initialWidth != widget.initialWidth) {
-      _width = widget.initialWidth;
+    if (oldWidget.initialSize.width != widget.initialSize.width) {
+      _width = widget.initialSize.width;
     }
-    if (oldWidget.initialHeight != widget.initialHeight) {
-      _height = widget.initialHeight;
+    if (oldWidget.initialSize.height != widget.initialSize.height) {
+      _height = widget.initialSize.height;
     }
-    if (oldWidget.initialX != widget.initialX) {
-      _x = widget.initialX;
+    if (oldWidget.initialPosition.dx != widget.initialPosition.dx) {
+      _x = widget.initialPosition.dx;
     }
-    if (oldWidget.initialY != widget.initialY) {
-      _y = widget.initialY;
+    if (oldWidget.initialPosition.dy != widget.initialPosition.dy) {
+      _y = widget.initialPosition.dy;
     }
     if (oldWidget.initialRotateAngle != widget.initialRotateAngle) {
       _rotateAngle = widget.initialRotateAngle;
@@ -549,12 +541,12 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
     if (_isWidthOverscale(updatedWidth)) {
       updatedXPosition = _x;
-      updatedWidth = widget.maxWidth!;
+      updatedWidth = widget.maxSize!.width;
     }
 
     if (_isHeightOverscale(updatedHeight)) {
       updatedYPosition = _y;
-      updatedHeight = widget.maxHeight!;
+      updatedHeight = widget.maxSize!.height;
     }
 
     setState(() {
@@ -568,22 +560,20 @@ class InteractiveBoxState extends State<InteractiveBox> {
   }
 
   bool _isWidthOverscale(double width) {
-    if (widget.maxWidth == null) return false;
+    if (widget.maxSize?.width == null) return false;
 
-    return width >= widget.maxWidth!;
+    return width >= widget.maxSize!.width;
   }
 
   bool _isHeightOverscale(double height) {
-    if (widget.maxHeight == null) return false;
+    if (widget.maxSize?.height == null) return false;
 
-    return height >= widget.maxHeight!;
+    return height >= widget.maxSize!.height;
   }
 
   InteractiveBoxInfo get _getCurrentBoxInfo => InteractiveBoxInfo(
-        width: _width,
-        height: _height,
-        x: _x,
-        y: _y,
+        size: Size(_width, _height),
+        position: Offset(_x, _y),
         rotateAngle: _rotateAngle,
       );
 
