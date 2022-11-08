@@ -85,104 +85,106 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      tables.add(
-                        TableModel(
-                          id: const Uuid().v4(),
-                          showIcons: false,
-                          width: 300,
-                          height: 300,
-                          x: 0,
-                          y: 0,
-                          rotateAngle: 0,
-                          image: Image.asset(
-                            "assets/table.png",
-                            fit: BoxFit.fill,
+    return Scaffold(
+      body: Container(
+        padding: const EdgeInsets.all(18),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        tables.add(
+                          TableModel(
+                            id: const Uuid().v4(),
+                            showIcons: false,
+                            width: 300,
+                            height: 300,
+                            x: 0,
+                            y: 0,
+                            rotateAngle: 0,
+                            image: Image.asset(
+                              "assets/table.png",
+                              fit: BoxFit.fill,
+                            ),
                           ),
-                        ),
-                      );
-                    });
-                  },
-                  child: const Text("Import"),
+                        );
+                      });
+                    },
+                    child: const Text("Import"),
+                  ),
                 ),
               ),
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints.loose(
-                Size(
-                  screenSize.width,
-                  screenSize.height,
+              ConstrainedBox(
+                constraints: BoxConstraints.loose(
+                  Size(
+                    screenSize.width,
+                    screenSize.height,
+                  ),
                 ),
-              ),
 
-              ///
-              /// Create infinite screen.
-              /// ref: https://stackoverflow.com/a/70915030
-              ///
-              /// Author: @Tor-Martin Holen
-              ///
-              child: InteractiveViewer.builder(
-                transformationController: _controller,
-                builder: (context, quad) {
-                  return Center(
-                    child: SizedBox(
-                      width: screenSize.width,
-                      height: screenSize.height,
-                      child: GridPaper(
-                        child: Content(
-                            tables: tables,
-                            onAdd: (TableModel table) {
-                              setState(() {
-                                tables.add(table);
-                              });
-                            },
-                            onToggle: (tappedTable, index) {
-                              setState(() {
-                                tables[index] = tappedTable;
-                              });
+                ///
+                /// Create infinite screen.
+                /// ref: https://stackoverflow.com/a/70915030
+                ///
+                /// Author: @Tor-Martin Holen
+                ///
+                child: InteractiveViewer.builder(
+                  transformationController: _controller,
+                  builder: (context, quad) {
+                    return Center(
+                      child: SizedBox(
+                        width: screenSize.width,
+                        height: screenSize.height,
+                        child: GridPaper(
+                          child: Content(
+                              tables: tables,
+                              onAdd: (TableModel table) {
+                                setState(() {
+                                  tables.add(table);
+                                });
+                              },
+                              onToggle: (tappedTable, index) {
+                                setState(() {
+                                  tables[index] = tappedTable;
+                                });
 
-                              for (TableModel table in tables) {
-                                int index = tables.indexOf(table);
+                                for (TableModel table in tables) {
+                                  int index = tables.indexOf(table);
 
-                                if (index == -1) return;
+                                  if (index == -1) return;
 
-                                if (table.id != tappedTable.id &&
-                                    table.showIcons == true) {
-                                  setState(() {
-                                    tables[index] =
-                                        table.copyWith(showIcons: false);
-                                  });
+                                  if (table.id != tappedTable.id &&
+                                      table.showIcons == true) {
+                                    setState(() {
+                                      tables[index] =
+                                          table.copyWith(showIcons: false);
+                                    });
+                                  }
                                 }
-                              }
-                            },
-                            onUpdate: (TableModel table, int index) {
-                              setState(() {
-                                tables[index] = table;
-                              });
-                            },
-                            onDel: (int index) {
-                              setState(() {
-                                tables.removeAt(index);
-                              });
-                            }),
+                              },
+                              onUpdate: (TableModel table, int index) {
+                                setState(() {
+                                  tables[index] = table;
+                                });
+                              },
+                              onDel: (int index) {
+                                setState(() {
+                                  tables.removeAt(index);
+                                });
+                              }),
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -218,8 +220,8 @@ class Content extends StatelessWidget {
             key: ValueKey(table.id),
             defaultScaleBorderDecoration: BoxDecoration(
               border: Border.all(
-                width: 0,
-                color: Colors.transparent,
+                width: 5,
+                color: Colors.grey,
               ),
             ),
             // hideActionIconsWhenInteracting: false,
@@ -229,7 +231,7 @@ class Content extends StatelessWidget {
             initialRotateAngle: table.rotateAngle,
             circularMenuDegree: 180,
             iconSize: 40,
-            toggleBy: ToggleActionType.onLongPress,
+            toggleBy: ToggleActionType.onTap,
             onInteractiveActionPerformed: (_, boxInfo) {
               /// Copy boxInfo and update to table after performing interactive actions
               /// so that when we toggle the icons in [onTap] method below, all tables
@@ -297,13 +299,22 @@ class Content extends StatelessWidget {
               ControlActionType.scale,
             ],
             maxSize: const Size(300, 300),
-            // shape: Shape.rectangle,
-            // shapeStyle: ShapeStyle(
-            //   borderWidth: 5,
-            //   borderColor: Colors.red[200],
-            //   backgroundColor: Colors.red,
-            // ),
-            child: tables[index].image,
+            shape: Shape.oval,
+            shapeStyle: ShapeStyle(
+              borderWidth: 5,
+              borderColor: Colors.red[200],
+              backgroundColor: Colors.red,
+            ),
+            child: Align(
+              alignment: Alignment.center,
+              child: Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                child: tables[index].image,
+              ),
+            ),
           );
         })
       ],

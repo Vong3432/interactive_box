@@ -35,9 +35,7 @@ Stack(
       ), 
 
       /**
-        If you want to show a shape instead of a widget, please refers to [Customize shape] in this README file below.
-
-        Note: Both [shape] and [child] cannot be included together.
+        If you want to show a shape instead of a widget, please refers to [Customize shape] in this README file below..
        */
     )
   ]

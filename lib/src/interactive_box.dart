@@ -68,8 +68,8 @@ class InteractiveBox extends StatefulWidget {
     // this.dot,
   })  : assert(child != null || shape != null,
             "Either child or shape must be provided."),
-        assert(child != null && shape == null || shape != null && child == null,
-            "Only can provide either child or shape."),
+        // assert(child != null && shape == null || shape != null && child == null,
+        //     "Only can provide either child or shape."),
         assert(shape == Shape.circle ? includedScaleDirections == null : true,
             "When [shape] is circle, no need pass [includedScaleDirections] since they will be overwritted."),
         super(key: key);
@@ -224,31 +224,34 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
     if (widget.child != null) {
       child = widget.child!;
-    } else {
-      switch (widget.shape) {
-        case Shape.circle:
-          child = CircleShape(
-            radius: _width / 2,
-            style: widget.shapeStyle,
-          );
-          break;
-        case Shape.oval:
-          child = OvalShape(
-            width: _width,
-            height: _height,
-            style: widget.shapeStyle,
-          );
-          break;
-        case Shape.rectangle:
-          child = RectangleShape(
-            width: _width,
-            height: _height,
-            style: widget.shapeStyle,
-          );
-          break;
-        default:
-          break;
-      }
+    }
+
+    switch (widget.shape) {
+      case Shape.circle:
+        child = CircleShape(
+          radius: _width / 2,
+          style: widget.shapeStyle,
+          child: child,
+        );
+        break;
+      case Shape.oval:
+        child = OvalShape(
+          width: _width,
+          height: _height,
+          style: widget.shapeStyle,
+          child: child,
+        );
+        break;
+      case Shape.rectangle:
+        child = RectangleShape(
+          width: _width,
+          height: _height,
+          style: widget.shapeStyle,
+          child: child,
+        );
+        break;
+      default:
+        break;
     }
 
     /// Build widget tree of [child] from the bottom to the top.
