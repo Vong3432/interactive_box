@@ -8,5 +8,9 @@ typedef OnInteractiveActionPerformed = void Function(
 typedef OnInteractiveActionPerforming = void Function(
     ControlActionType, InteractiveBoxInfo);
 typedef OnTapCallback = void Function(InteractiveBoxInfo);
+typedef OnDoubleTapCallback = void Function(InteractiveBoxInfo);
+typedef OnSecondaryTapCallback = void Function(InteractiveBoxInfo);
+typedef OnLongPressCallback = void Function(InteractiveBoxInfo);
+typedef OnForcePressCallback = void Function(InteractiveBoxInfo);
 // typedef ScalingCallback = void Function(DragUpdateDetails, ScaleDirection);
 // typedef RotatingCallback = void Function(DragUpdateDetails);

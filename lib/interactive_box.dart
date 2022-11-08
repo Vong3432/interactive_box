@@ -1,5 +1,6 @@
 library interactive_box;
 
+export 'src/enums/toggle_action_type.enum.dart' show ToggleActionType;
 export 'src/enums/control_action_type_enum.dart' show ControlActionType;
 export 'src/enums/scale_direction_enum.dart' show ScaleDirection;
 export 'src/enums/shape_enum.dart' show Shape;

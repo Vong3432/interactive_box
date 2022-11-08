@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _controller = TransformationController();
 
     List<TableModel> dumData = List.generate(
-      10,
+      100,
       (_) => TableModel(
         id: const Uuid().v4(),
         showIcons: false,
@@ -229,7 +229,8 @@ class Content extends StatelessWidget {
             initialRotateAngle: table.rotateAngle,
             circularMenuDegree: 180,
             iconSize: 40,
-            onInteractiveActionPerforming: (_, boxInfo) {
+            toggleBy: ToggleActionType.onLongPress,
+            onInteractiveActionPerformed: (_, boxInfo) {
               /// Copy boxInfo and update to table after performing interactive actions
               /// so that when we toggle the icons in [onTap] method below, all tables
               /// will be updated correctly (persist their position, size, rotate angle)...
@@ -296,13 +297,13 @@ class Content extends StatelessWidget {
               ControlActionType.scale,
             ],
             maxSize: const Size(300, 300),
-            shape: Shape.rectangle,
-            shapeStyle: ShapeStyle(
-              borderWidth: 5,
-              borderColor: Colors.red[200],
-              backgroundColor: Colors.red,
-            ),
-            // child: tables[index].image,
+            // shape: Shape.rectangle,
+            // shapeStyle: ShapeStyle(
+            //   borderWidth: 5,
+            //   borderColor: Colors.red[200],
+            //   backgroundColor: Colors.red,
+            // ),
+            child: tables[index].image,
           );
         })
       ],

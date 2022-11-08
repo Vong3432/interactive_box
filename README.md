@@ -105,6 +105,19 @@ InteractiveBox(
       cancelIcon: Icon(Icons.abc),
 )
 ```
+
+### Use different gestures to toggle circular menu
+Default will use all ToggleActionType.onTap, refers to [ToggleActionType](lib/src/enums/toggle_action_type.enum.dart) for more gestures.
+
+```dart
+InteractiveBox(
+    // properties from simple use
+    ...,
+    // will now open menu by double tap
+    toggleBy: ToggleActionType.onDoubleTap 
+)
+```
+
 ### Customize scale border
 ```dart
 InteractiveBox(

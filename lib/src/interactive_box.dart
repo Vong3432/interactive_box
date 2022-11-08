@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:interactive_box/interactive_box.dart';
 import 'package:interactive_box/src/widgets/internal/shapes/circle_shape.dart';
 import 'package:interactive_box/src/widgets/internal/shapes/oval_shape.dart';
 
+import 'enums/control_action_type_enum.dart';
+import 'enums/scale_direction_enum.dart';
+import 'enums/shape_enum.dart';
+import 'enums/toggle_action_type.enum.dart';
 import 'helpers/scale_helper.dart';
+import 'models/interactive_box_info.dart';
 import 'models/scale_info.dart';
+import 'models/shape_style.dart';
 import 'typedef.dart';
 import 'consts/scale_item.const.dart';
 import 'consts/circular_menu.const.dart';
@@ -31,6 +36,7 @@ class InteractiveBox extends StatefulWidget {
       ControlActionType.none
     ],
     this.initialShowActionIcons = false,
+    this.toggleBy = ToggleActionType.onTap,
     this.hideActionIconsWhenInteracting = true,
     this.circularMenuDegree,
     // this.circularMenuSpreadMultiplier = defaultSpreadDistanceMultiplier,
@@ -53,6 +59,9 @@ class InteractiveBox extends StatefulWidget {
     this.onInteractiveActionPerforming,
     this.onInteractiveActionPerformed,
     this.onTap,
+    this.onDoubleTap,
+    this.onSecondaryTap,
+    this.onLongPress,
     this.scaleDotColor = defaultDotColor,
     this.overScaleDotColor = defaultOverscaleDotColor,
     this.includedScaleDirections,
@@ -73,6 +82,8 @@ class InteractiveBox extends StatefulWidget {
   final Decoration? defaultScaleBorderDecoration;
 
   final bool initialShowActionIcons;
+
+  final ToggleActionType? toggleBy;
 
   /// Whether the action icons should be hidden when users interacting.
   ///
@@ -115,6 +126,9 @@ class InteractiveBox extends StatefulWidget {
   final OnInteractiveActionPerformed? onInteractiveActionPerformed;
 
   final OnTapCallback? onTap;
+  final OnDoubleTapCallback? onDoubleTap;
+  final OnSecondaryTapCallback? onSecondaryTap;
+  final OnLongPressCallback? onLongPress;
 
   final Color circularMenuIconColor;
   final double iconSize;
@@ -340,6 +354,9 @@ class InteractiveBoxState extends State<InteractiveBox> {
       child: child,
     );
 
+    /// Identify how should the menu be opened based on the gestures.
+    child = _buildGestureByToggleAction(child);
+
     /// Here is the topest in the widget tree of [child]
     child = RepaintBoundary(
       child: SizedBox.expand(
@@ -362,22 +379,24 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
             _onMovingEnd(details);
           },
-          onTap: () {
-            if (widget.onTap != null) {
-              final InteractiveBoxInfo info = _getCurrentBoxInfo;
-              widget.onTap!(info);
-            }
-
-            setState(() {
-              _showItems = !_showItems;
-            });
-          },
           child: child,
         ),
       ),
     );
 
     return child;
+  }
+
+  bool _shouldThisGestureToggleActions(ToggleActionType toggleActionType) {
+    return toggleActionType == widget.toggleBy;
+  }
+
+  void _toggleMenu(ToggleActionType toggleActionType) {
+    if (!_shouldThisGestureToggleActions(toggleActionType)) return;
+
+    setState(() {
+      _showItems = !_showItems;
+    });
   }
 
   void _toggleIsPerforming(bool perform) {
@@ -393,6 +412,63 @@ class InteractiveBoxState extends State<InteractiveBox> {
         _isPerforming = perform;
       });
     }
+  }
+
+  Widget _buildGestureByToggleAction(Widget child) {
+    Widget childWithGesture = child;
+
+    switch (widget.toggleBy) {
+      case ToggleActionType.onDoubleTap:
+        childWithGesture = GestureDetector(
+          onDoubleTap: () {
+            if (widget.onDoubleTap != null) {
+              final InteractiveBoxInfo info = _getCurrentBoxInfo;
+              widget.onDoubleTap!(info);
+            }
+            _toggleMenu(ToggleActionType.onDoubleTap);
+          },
+          child: child,
+        );
+        break;
+      case ToggleActionType.onSecondaryTap:
+        childWithGesture = GestureDetector(
+          onSecondaryTap: () {
+            if (widget.onSecondaryTap != null) {
+              final InteractiveBoxInfo info = _getCurrentBoxInfo;
+              widget.onSecondaryTap!(info);
+            }
+            _toggleMenu(ToggleActionType.onSecondaryTap);
+          },
+          child: child,
+        );
+        break;
+      case ToggleActionType.onLongPress:
+        childWithGesture = GestureDetector(
+          onLongPress: () {
+            if (widget.onLongPress != null) {
+              final InteractiveBoxInfo info = _getCurrentBoxInfo;
+              widget.onLongPress!(info);
+            }
+            _toggleMenu(ToggleActionType.onLongPress);
+          },
+          child: child,
+        );
+        break;
+      default:
+        childWithGesture = GestureDetector(
+          onTap: () {
+            if (widget.onTap != null) {
+              final InteractiveBoxInfo info = _getCurrentBoxInfo;
+              widget.onTap!(info);
+            }
+            _toggleMenu(ToggleActionType.onTap);
+          },
+          child: child,
+        );
+        break;
+    }
+
+    return childWithGesture;
   }
 
   List<Widget> _buildActionItems() {
