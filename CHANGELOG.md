@@ -1,6 +1,37 @@
 # Changelog
 This changelog uses [semantic versioning](https://semver.org) for documenting changes. 
 
+## 0.3.0
+#### InteractiveBox
+[Fix]
+- Fix scale border decoration causing the [child]/[shape] slightly be pushed from its correct position.
+- Scale border will now only be showed during scaling. Previously the border will be shown although not performing scaling.
+
+[Changed]
+- Refactor parameters that related to width, height, x, y with Size() and Offset().
+
+[Added]
+- Adds ability to toggle menu with different gestures instead of onTap (default behavior) only. 
+
+    The supported gestures are:
+    - onTap
+    - onDoubleTap
+    - onSecondaryTap
+    - onLongPress
+
+    For more details, refer to [here](lib/src/enums/toggle_action_type.enum.dart)
+
+- Adds ability to use shape without passing [child] widget. This could be useful when you want to show a simple shapes.
+
+    The supported shapes are:
+    - Oval
+    - Circle
+    - Rectangle
+
+    For more details, refer to [here](lib/src/enums/shape_enum.dart)
+#### docs
+- Updates example code.
+
 ## 0.2.5
 #### InteractiveBox 
 - Adds ability to use only specific scale directions
