@@ -8,6 +8,7 @@ class ScalableItem extends StatelessWidget {
     required this.child,
     required this.showCornerDots,
     required this.includedScaleDirections,
+    required this.isScaling,
     // this.dot,
     this.showOverScaleBorder = false,
     this.onBottomLeftDotDragging,
@@ -43,6 +44,7 @@ class ScalableItem extends StatelessWidget {
   final Function(DragUpdateDetails)? onCenterRightDotDragging;
   final Function(DragEndDetails)? onAnyDotDraggingEnd;
   final List<ScaleDirection> includedScaleDirections;
+  final bool isScaling;
 
   @override
   Widget build(BuildContext context) {
@@ -84,11 +86,12 @@ class ScalableItem extends StatelessWidget {
           child: child,
         ),
 
-        Positioned.fill(
-          child: Container(
-            decoration: borderDecoration,
+        if (isScaling)
+          Positioned.fill(
+            child: Container(
+              decoration: borderDecoration,
+            ),
           ),
-        ),
 
         // top left
         if (includedScaleDirections.contains(ScaleDirection.topLeft))

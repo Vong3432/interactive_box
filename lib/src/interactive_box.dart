@@ -271,6 +271,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
       overScaleBorderDecoration: widget.overScaleBorderDecoration,
       defaultScaleBorderDecoration: widget.defaultScaleBorderDecoration,
       showOverScaleBorder: isOverScale && widget.showOverscaleBorder,
+      isScaling: isScaling,
       includedScaleDirections: widget.shape == Shape.circle
           ? const [
               ScaleDirection.topLeft,
