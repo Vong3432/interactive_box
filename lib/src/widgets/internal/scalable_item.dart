@@ -81,9 +81,12 @@ class ScalableItem extends StatelessWidget {
       children: [
         // child
         Positioned.fill(
+          child: child,
+        ),
+
+        Positioned.fill(
           child: Container(
             decoration: borderDecoration,
-            child: child,
           ),
         ),
 
