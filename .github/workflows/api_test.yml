@@ -2,8 +2,8 @@ name: Testing workflow
 
 on: 
   pull_request:
-      paths:
-        - 'lib/**'
+    paths:
+      - 'lib/**'
 
 jobs:
   build_web:
