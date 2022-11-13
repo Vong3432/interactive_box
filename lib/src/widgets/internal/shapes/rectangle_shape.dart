@@ -57,7 +57,7 @@ class RectangleShapePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant RectangleShapePainter oldDelegate) {
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
   }
 }

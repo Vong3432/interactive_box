@@ -57,7 +57,7 @@ class OvalShapePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant OvalShapePainter oldDelegate) {
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
   }
 }

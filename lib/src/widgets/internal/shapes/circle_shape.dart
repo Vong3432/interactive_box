@@ -67,7 +67,7 @@ class CircleShapePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CircleShapePainter oldDelegate) {
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
   }
 }
