@@ -1,17 +1,17 @@
-name: Publish plugin to pub workflow
+# name: Publish plugin to pub workflow
 
-on: [push]
+# on: [push]
 
-jobs:
-  publish_to_pub:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Publish
-        uses: sakebook/actions-flutter-pub-publisher@v1.4.1
-        with:
-          credential: ${{ secrets.CREDENTIAL_JSON }}
-          flutter_package: true
-          skip_test: false
-          dry_run: true
+# jobs:
+#   publish_to_pub:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v1
+#       - name: Publish
+#         uses: sakebook/actions-flutter-pub-publisher@v1.4.1
+#         with:
+#           credential: ${{ secrets.CREDENTIAL_JSON }}
+#           flutter_package: true
+#           skip_test: false
+#           dry_run: true
