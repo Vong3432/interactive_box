@@ -58,8 +58,6 @@ class RectangleShapePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant RectangleShapePainter oldDelegate) {
-    return oldDelegate.style != style ||
-        oldDelegate.width != width ||
-        oldDelegate.height != height;
+    return false;
   }
 }

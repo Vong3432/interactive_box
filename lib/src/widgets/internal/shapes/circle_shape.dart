@@ -68,6 +68,6 @@ class CircleShapePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CircleShapePainter oldDelegate) {
-    return oldDelegate.style != style || oldDelegate.radius != radius;
+    return false;
   }
 }

@@ -58,8 +58,6 @@ class OvalShapePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant OvalShapePainter oldDelegate) {
-    return oldDelegate.style != style ||
-        oldDelegate.width != width ||
-        oldDelegate.height != height;
+    return false;
   }
 }
