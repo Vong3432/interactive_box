@@ -13,8 +13,9 @@ jobs:
         working-directory: ./example
         run: |
           flutter pub get
-          flutter test
           flutter build web
+      - name: Run InteractiveBox test
+        run: flutter test
     
   build_window:
     runs-on: windows-latest
@@ -28,8 +29,9 @@ jobs:
         run: |
           flutter config --enable-windows-desktop
           flutter pub get
-          flutter test
           flutter build windows
+      - name: Run InteractiveBox test
+        run: flutter test
 
   build_linux:
     runs-on: ubuntu-latest
@@ -46,8 +48,9 @@ jobs:
           
           flutter config --enable-linux-desktop
           flutter pub get
-          flutter test
           flutter build linux
+      - name: Run InteractiveBox test
+        run: flutter test
 
   build_macOS:
     runs-on: macos-latest
@@ -61,8 +64,9 @@ jobs:
         run: |
           flutter config --enable-macos-desktop
           flutter pub get
-          flutter test
           flutter build macos
+      - name: Run InteractiveBox test
+        run: flutter test
 
   build_iOS:
     runs-on: macos-latest
@@ -76,8 +80,9 @@ jobs:
         working-directory: ./example
         run: |
           flutter pub get
-          flutter test
           flutter build ios --release --no-codesign
+      - name: Run InteractiveBox test
+        run: flutter test
 
   build_android:
     runs-on: ubuntu-latest
@@ -94,9 +99,10 @@ jobs:
         working-directory: ./example
         run: |
           flutter pub get
-          flutter test
           flutter build apk 
           flutter build appbundle
+      - name: Run InteractiveBox test
+        run: flutter test
       
    
 
