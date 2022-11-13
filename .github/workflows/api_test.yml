@@ -3,41 +3,44 @@ name: Testing workflow
 on: [push]
 jobs:
   build_web:
-    name: Run on web
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2.8.0
         with:
           channel: 'stable'
-      - run: |
+      - name: Run on Web 
+        working-directory: ./example
+        run: |
           flutter pub get
           flutter test
           flutter build web
     
   build_window:
-    name: Run on Windows
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2.8.0
         with:
           channel: 'stable'
-      - run: |
+      - name: Run on Windows
+        working-directory: ./example
+        run: |
           flutter config --enable-windows-desktop
           flutter pub get
           flutter test
           flutter build windows
 
   build_linux:
-    name: Run on Linux
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2.8.0
         with:
           channel: 'stable'
-      - run: |
+      - name: Run on Linux
+        working-directory: ./example
+        run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build libgtk-3-dev
           
@@ -47,21 +50,21 @@ jobs:
           flutter build linux
 
   build_macOS:
-    name: Run on macOS
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2.8.0
         with:
           channel: 'stable'
-      - run: |
+      - name: Run on macOS
+        working-directory: ./example
+        run: |
           flutter config --enable-macos-desktop
           flutter pub get
           flutter test
           flutter build macos
 
   build_iOS:
-    name: Run on ios
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -69,13 +72,14 @@ jobs:
         with:
           channel: 'stable'
           architecture: x64
-      - run: |
+      - name: Run on iOS
+        working-directory: ./example
+        run: |
           flutter pub get
           flutter test
           flutter build ios --release --no-codesign
 
   build_android:
-    name: Run on android
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -86,7 +90,9 @@ jobs:
       - uses: subosito/flutter-action@v2.8.0
         with:
           channel: 'stable'
-      - run: |
+      - name: Run on Android
+        working-directory: ./example
+        run: |
           flutter pub get
           flutter test
           flutter build apk 
