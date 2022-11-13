@@ -2,41 +2,42 @@ name: Testing workflow
 
 on: [push]
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
-
+  build_web:
+    name: Run on web
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: subosito/flutter-action@v2.8.0
-
-    - name: Run on Web
-      with:
-        channel: 'stable'
-      run: |
-        flutter pub get
-        flutter test
-        flutter build web
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: 'stable'
+      - run: |
+          flutter pub get
+          flutter test
+          flutter build web
     
-    - name: Run on Windows
-      with:
-        channel: 'stable'
-      run: |
-        if [ matrix.os == 'windows-latest' ]; then 
+  build_window:
+    name: Run on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: 'stable'
+      - run: |
           flutter config --enable-windows-desktop
           flutter pub get
           flutter test
           flutter build windows
-        fi
 
-    - name: Run on Ubuntu
-      with:
-        channel: 'stable'
-      run: |
-        if [ matrix.os == 'ubuntu-latest' ]; then 
+  build_linux:
+    name: Run on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: 'stable'
+      - run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build libgtk-3-dev
           
@@ -44,37 +45,53 @@ jobs:
           flutter pub get
           flutter test
           flutter build linux
-        fi
 
-    - name: Run on macOS
-      with:
-        channel: 'stable'
-      run: |
-        if [ matrix.os == 'macos-latest' ]; then 
+  build_macOS:
+    name: Run on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: 'stable'
+      - run: |
           flutter config --enable-macos-desktop
           flutter pub get
           flutter test
           flutter build macos
-        fi
 
-    - name: Run on IOS
-      with:
-        channel: 'stable'
-        architecture: x64
-      run: |
-        flutter pub get
-        flutter test
-        flutter build ios --release --no-codesign
+  build_iOS:
+    name: Run on ios
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: 'stable'
+          architecture: x64
+      - run: |
+          flutter pub get
+          flutter test
+          flutter build ios --release --no-codesign
 
-    - name: Run on Android
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'zulu'
-        java-version: '11'
-      run: |
-        flutter pub get
-        flutter test
-        flutter build apk 
-        flutter build appbundle
+  build_android:
+    name: Run on android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: 'stable'
+      - run: |
+          flutter pub get
+          flutter test
+          flutter build apk 
+          flutter build appbundle
+      
+   
 
     
