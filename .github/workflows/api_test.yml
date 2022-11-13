@@ -1,6 +1,10 @@
 name: Testing workflow
 
-on: [push]
+on: 
+  pull_request:
+      paths:
+        - 'lib/**'
+
 jobs:
   build_web:
     runs-on: ubuntu-latest
