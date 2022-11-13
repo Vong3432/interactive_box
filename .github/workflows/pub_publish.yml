@@ -1,16 +1,10 @@
 name: Publish plugin to pub workflow
 
-on:
-  release:
-    branches:
-      - main
-    types: [published]
+on: [push]
 
 jobs:
-  publish:
-
+  publish_to_pub:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v1
