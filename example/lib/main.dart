@@ -232,7 +232,10 @@ class Content extends StatelessWidget {
             circularMenuDegree: 180,
             iconSize: 40,
             toggleBy: ToggleActionType.onTap,
-            onInteractiveActionPerformed: (_, boxInfo) {
+            onInteractiveActionPerforming: (_, __, details) {
+              debugPrint("Drag update details: $details");
+            },
+            onInteractiveActionPerformed: (_, boxInfo, __) {
               /// Copy boxInfo and update to table after performing interactive actions
               /// so that when we toggle the icons in [onTap] method below, all tables
               /// will be updated correctly (persist their position, size, rotate angle)...
@@ -261,8 +264,7 @@ class Content extends StatelessWidget {
 
               // END comment here if want to see the problem
             },
-            onTap: (boxInfo) {
-              /// Only tapped table will show icons.
+            onMenuToggled: (boxInfo) {
               ///
               /// Might refer to [onInteractiveActionPerformed]
               ///

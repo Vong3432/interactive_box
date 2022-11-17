@@ -19,7 +19,7 @@ void main() {
             initialPosition: boxPosition,
             initialSize: boxSize,
             toggleBy: ToggleActionType.onTap,
-            onTap: (_) {
+            onMenuToggled: (_) {
               success = true;
             },
             shape: Shape.rectangle,
@@ -59,7 +59,7 @@ void main() {
             initialPosition: boxPosition,
             initialSize: boxSize,
             toggleBy: ToggleActionType.onLongPress,
-            onLongPress: (_) {
+            onMenuToggled: (_) {
               success = true;
             },
             shape: Shape.rectangle,
@@ -99,7 +99,7 @@ void main() {
             initialPosition: boxPosition,
             initialSize: boxSize,
             toggleBy: ToggleActionType.onDoubleTap,
-            onDoubleTap: (_) {
+            onMenuToggled: (_) {
               success = true;
             },
             shape: Shape.rectangle,
@@ -141,7 +141,7 @@ void main() {
             initialPosition: boxPosition,
             initialSize: boxSize,
             toggleBy: ToggleActionType.onSecondaryTap,
-            onSecondaryTap: (_) {
+            onMenuToggled: (_) {
               success = true;
             },
             shape: Shape.rectangle,

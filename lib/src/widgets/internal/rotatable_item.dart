@@ -19,8 +19,9 @@ class RotatableItem extends StatefulWidget {
   final double? rotateIndicatorSpacing;
   final Widget child;
   final Alignment alignment;
-  final void Function(double currentAngle)? onRotating;
-  final void Function(double finalAngle)? onRotatingEnd;
+  final void Function(DragUpdateDetails details, double currentAngle)?
+      onRotating;
+  final void Function(DragEndDetails details, double finalAngle)? onRotatingEnd;
 
   @override
   State<RotatableItem> createState() => _RotatableItemState();
@@ -104,13 +105,13 @@ class _RotatableItemState extends State<RotatableItem> {
                       });
 
                       if (widget.onRotating != null) {
-                        widget.onRotating!(tempAngle);
+                        widget.onRotating!(details, tempAngle);
                       }
                     },
                     onPanEnd: (details) {
                       _prevAngle = _finalAngle;
                       if (widget.onRotatingEnd != null) {
-                        widget.onRotatingEnd!(_finalAngle);
+                        widget.onRotatingEnd!(details, _finalAngle);
                       }
                     },
                   )

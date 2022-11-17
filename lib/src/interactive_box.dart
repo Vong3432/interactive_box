@@ -58,13 +58,10 @@ class InteractiveBox extends StatefulWidget {
     this.onActionSelected,
     this.onInteractiveActionPerforming,
     this.onInteractiveActionPerformed,
-    this.onTap,
-    this.onDoubleTap,
-    this.onSecondaryTap,
-    this.onLongPress,
     this.scaleDotColor = defaultDotColor,
     this.overScaleDotColor = defaultOverscaleDotColor,
     this.includedScaleDirections,
+    this.onMenuToggled,
     // this.dot,
   })  : assert(child != null || shape != null,
             "Either child or shape must be provided."),
@@ -125,10 +122,7 @@ class InteractiveBox extends StatefulWidget {
   /// A callback that will be called after performing interactive actions.
   final OnInteractiveActionPerformed? onInteractiveActionPerformed;
 
-  final OnTapCallback? onTap;
-  final OnDoubleTapCallback? onDoubleTap;
-  final OnSecondaryTapCallback? onSecondaryTap;
-  final OnLongPressCallback? onLongPress;
+  final OnMenuToggleCallback? onMenuToggled;
 
   final Color circularMenuIconColor;
   final double iconSize;
@@ -331,14 +325,14 @@ class InteractiveBoxState extends State<InteractiveBox> {
       rotateIndicator: widget.rotateIndicator,
       showRotatingIcon: isRotating,
       initialRotateAngle: widget.initialRotateAngle,
-      onRotating: (rotateAngle) {
+      onRotating: (details, rotateAngle) {
         _rotateAngle = rotateAngle;
-        _notifyParentWhenInteracting();
+        _notifyParentWhenInteracting(details);
         _toggleIsPerforming(true);
       },
-      onRotatingEnd: (double finalAngle) {
+      onRotatingEnd: (details, finalAngle) {
         _rotateAngle = finalAngle;
-        _notifyParentAfterInteracted();
+        _notifyParentAfterInteracted(details);
         _toggleIsPerforming(false);
       },
       child: child,
@@ -425,9 +419,9 @@ class InteractiveBoxState extends State<InteractiveBox> {
       case ToggleActionType.onDoubleTap:
         childWithGesture = GestureDetector(
           onDoubleTap: () {
-            if (widget.onDoubleTap != null) {
+            if (widget.onMenuToggled != null) {
               final InteractiveBoxInfo info = _getCurrentBoxInfo;
-              widget.onDoubleTap!(info);
+              widget.onMenuToggled!(info);
             }
             _toggleMenu(ToggleActionType.onDoubleTap);
           },
@@ -437,9 +431,9 @@ class InteractiveBoxState extends State<InteractiveBox> {
       case ToggleActionType.onSecondaryTap:
         childWithGesture = GestureDetector(
           onSecondaryTap: () {
-            if (widget.onSecondaryTap != null) {
+            if (widget.onMenuToggled != null) {
               final InteractiveBoxInfo info = _getCurrentBoxInfo;
-              widget.onSecondaryTap!(info);
+              widget.onMenuToggled!(info);
             }
             _toggleMenu(ToggleActionType.onSecondaryTap);
           },
@@ -449,9 +443,9 @@ class InteractiveBoxState extends State<InteractiveBox> {
       case ToggleActionType.onLongPress:
         childWithGesture = GestureDetector(
           onLongPress: () {
-            if (widget.onLongPress != null) {
+            if (widget.onMenuToggled != null) {
               final InteractiveBoxInfo info = _getCurrentBoxInfo;
-              widget.onLongPress!(info);
+              widget.onMenuToggled!(info);
             }
             _toggleMenu(ToggleActionType.onLongPress);
           },
@@ -461,9 +455,9 @@ class InteractiveBoxState extends State<InteractiveBox> {
       default:
         childWithGesture = GestureDetector(
           onTap: () {
-            if (widget.onTap != null) {
+            if (widget.onMenuToggled != null) {
               final InteractiveBoxInfo info = _getCurrentBoxInfo;
-              widget.onTap!(info);
+              widget.onMenuToggled!(info);
             }
             _toggleMenu(ToggleActionType.onTap);
           },
@@ -547,7 +541,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
   /// Users can only be allowed to interact with the controllable item before releasing the cursor.
   /// Once it is released, no more interaction.
   void _onMovingEnd(DragEndDetails details) {
-    _notifyParentAfterInteracted();
+    _notifyParentAfterInteracted(details);
     _toggleIsPerforming(false);
   }
 
@@ -570,7 +564,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
       _y = updatedYPosition;
     });
 
-    _notifyParentWhenInteracting();
+    _notifyParentWhenInteracting(update);
   }
 
   void _onScalingEnd(DragEndDetails details) {
@@ -579,7 +573,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
       return;
     }
 
-    _notifyParentAfterInteracted();
+    _notifyParentAfterInteracted(details);
     _toggleIsPerforming(false);
   }
 
@@ -636,7 +630,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
       _y = updatedYPosition;
     });
 
-    _notifyParentWhenInteracting();
+    _notifyParentWhenInteracting(update);
   }
 
   bool _isWidthOverscale(double width) {
@@ -663,20 +657,21 @@ class InteractiveBoxState extends State<InteractiveBox> {
     ControlActionType.rotate,
   ];
 
-  void _notifyParentWhenInteracting() {
+  void _notifyParentWhenInteracting(DragUpdateDetails details) {
     if (!_interactiveActions.contains(_selectedAction)) return;
 
     if (widget.onInteractiveActionPerforming != null) {
       widget.onInteractiveActionPerforming!(
-          _selectedAction, _getCurrentBoxInfo);
+          _selectedAction, _getCurrentBoxInfo, details);
     }
   }
 
-  void _notifyParentAfterInteracted() {
+  void _notifyParentAfterInteracted(DragEndDetails details) {
     if (!_interactiveActions.contains(_selectedAction)) return;
 
     if (widget.onInteractiveActionPerformed != null) {
-      widget.onInteractiveActionPerformed!(_selectedAction, _getCurrentBoxInfo);
+      widget.onInteractiveActionPerformed!(
+          _selectedAction, _getCurrentBoxInfo, details);
     }
   }
 }
