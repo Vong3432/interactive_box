@@ -275,6 +275,10 @@ class Content extends StatelessWidget {
 
               onToggle(copiedTable, index);
             },
+            onTap: () => {debugPrint("ON TAPPED")},
+            onDoubleTap: () => {debugPrint("ON DOUBLE TAPPED")},
+            onLongPress: () => {debugPrint("ON LONG PRESS")},
+            onSecondaryTap: () => {debugPrint("ON SECONDARY TAP")},
             onActionSelected: (actionType, boxInfo) {
               if (actionType == ControlActionType.copy) {
                 TableModel copiedTable = table.copyWith(

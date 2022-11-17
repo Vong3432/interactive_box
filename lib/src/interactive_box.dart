@@ -62,6 +62,10 @@ class InteractiveBox extends StatefulWidget {
     this.overScaleDotColor = defaultOverscaleDotColor,
     this.includedScaleDirections,
     this.onMenuToggled,
+    this.onTap,
+    this.onDoubleTap,
+    this.onSecondaryTap,
+    this.onLongPress,
     // this.dot,
   })  : assert(child != null || shape != null,
             "Either child or shape must be provided."),
@@ -123,6 +127,10 @@ class InteractiveBox extends StatefulWidget {
   final OnInteractiveActionPerformed? onInteractiveActionPerformed;
 
   final OnMenuToggleCallback? onMenuToggled;
+  final VoidCallback? onTap;
+  final VoidCallback? onDoubleTap;
+  final VoidCallback? onSecondaryTap;
+  final VoidCallback? onLongPress;
 
   final Color circularMenuIconColor;
   final double iconSize;
@@ -352,13 +360,34 @@ class InteractiveBoxState extends State<InteractiveBox> {
       child: child,
     );
 
-    /// Identify how should the menu be opened based on the gestures.
-    child = _buildGestureByToggleAction(child);
-
     /// Here is the topest in the widget tree of [child]
     child = RepaintBoundary(
       child: SizedBox.expand(
         child: GestureDetector(
+          onDoubleTap: () {
+            if (widget.onDoubleTap != null) {
+              widget.onDoubleTap!();
+            }
+            _toggleMenu(ToggleActionType.onDoubleTap);
+          },
+          onSecondaryTap: () {
+            if (widget.onSecondaryTap != null) {
+              widget.onSecondaryTap!();
+            }
+            _toggleMenu(ToggleActionType.onSecondaryTap);
+          },
+          onLongPress: () {
+            if (widget.onLongPress != null) {
+              widget.onLongPress!();
+            }
+            _toggleMenu(ToggleActionType.onLongPress);
+          },
+          onTap: () {
+            if (widget.onTap != null) {
+              widget.onTap!();
+            }
+            _toggleMenu(ToggleActionType.onTap);
+          },
           onPanUpdate: (details) {
             setState(() {
               _selectedAction = ControlActionType.move;
@@ -395,6 +424,8 @@ class InteractiveBoxState extends State<InteractiveBox> {
     setState(() {
       _showItems = !_showItems;
     });
+
+    widget.onMenuToggled!(_getCurrentBoxInfo);
   }
 
   void _toggleIsPerforming(bool perform) {
@@ -410,63 +441,6 @@ class InteractiveBoxState extends State<InteractiveBox> {
         _isPerforming = perform;
       });
     }
-  }
-
-  Widget _buildGestureByToggleAction(Widget child) {
-    Widget childWithGesture = child;
-
-    switch (widget.toggleBy) {
-      case ToggleActionType.onDoubleTap:
-        childWithGesture = GestureDetector(
-          onDoubleTap: () {
-            if (widget.onMenuToggled != null) {
-              final InteractiveBoxInfo info = _getCurrentBoxInfo;
-              widget.onMenuToggled!(info);
-            }
-            _toggleMenu(ToggleActionType.onDoubleTap);
-          },
-          child: child,
-        );
-        break;
-      case ToggleActionType.onSecondaryTap:
-        childWithGesture = GestureDetector(
-          onSecondaryTap: () {
-            if (widget.onMenuToggled != null) {
-              final InteractiveBoxInfo info = _getCurrentBoxInfo;
-              widget.onMenuToggled!(info);
-            }
-            _toggleMenu(ToggleActionType.onSecondaryTap);
-          },
-          child: child,
-        );
-        break;
-      case ToggleActionType.onLongPress:
-        childWithGesture = GestureDetector(
-          onLongPress: () {
-            if (widget.onMenuToggled != null) {
-              final InteractiveBoxInfo info = _getCurrentBoxInfo;
-              widget.onMenuToggled!(info);
-            }
-            _toggleMenu(ToggleActionType.onLongPress);
-          },
-          child: child,
-        );
-        break;
-      default:
-        childWithGesture = GestureDetector(
-          onTap: () {
-            if (widget.onMenuToggled != null) {
-              final InteractiveBoxInfo info = _getCurrentBoxInfo;
-              widget.onMenuToggled!(info);
-            }
-            _toggleMenu(ToggleActionType.onTap);
-          },
-          child: child,
-        );
-        break;
-    }
-
-    return childWithGesture;
   }
 
   List<Widget> _buildActionItems() {
