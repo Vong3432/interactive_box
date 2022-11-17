@@ -1,6 +1,12 @@
 # Changelog
 This changelog uses [semantic versioning](https://semver.org) for documenting changes. 
 
+## 0.3.1
+[Breaking changes]
+- Adds onMenuToggled callback, previously onTap is acting like a callback whenever menu is toggled.. 
+- Can now use callbacks for [ToggleActionType](lib/src/enums/toggle_action_type.enum.dart) like how it is in GestureDetector.
+- ⚠️ Might experience some slow respond whenever menu is toggled. Especially when [toggleBy] is set as [ToggleActionType.onTap].
+
 ## 0.3.0
 #### InteractiveBox
 [Fix]
