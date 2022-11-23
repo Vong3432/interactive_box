@@ -425,7 +425,9 @@ class InteractiveBoxState extends State<InteractiveBox> {
       _showItems = !_showItems;
     });
 
-    widget.onMenuToggled!(_getCurrentBoxInfo);
+    if (widget.onMenuToggled != null) {
+      widget.onMenuToggled!(_getCurrentBoxInfo);
+    }
   }
 
   void _toggleIsPerforming(bool perform) {
