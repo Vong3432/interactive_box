@@ -8,6 +8,7 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  defer_pointer: ^0.0.2
   flutter:
     sdk: flutter
 

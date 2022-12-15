@@ -1,3 +1,4 @@
+import 'package:defer_pointer/defer_pointer.dart';
 import 'package:flutter/material.dart';
 
 /// A widget that can be rotated
@@ -58,34 +59,20 @@ class _RotatableItemState extends State<RotatableItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Transform.rotate(
-      angle: _finalAngle,
-      alignment: widget.alignment,
-      child: Stack(
-        fit: StackFit.passthrough,
-        clipBehavior: Clip.none,
-        children: [
-          Positioned.fill(
-            right: -(widget.rotateIndicatorSpacing ?? 20.0),
-            // Gesture handler for the rotate icon indicator.
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Opacity(
-                opacity: _showRotatingIcon ? 1.0 : 0.0,
-                child: widget.rotateIndicator ??
-                    const Icon(
-                      Icons.circle,
-                      color: Colors.lightGreen,
-                      size: 10,
-                    ),
-              ),
-            ),
-          ),
-          widget.child,
-          Positioned(
-            child: widget.showRotatingIcon
-                ? GestureDetector(
-                    ///
+    return DeferredPointerHandler(
+      child: Transform.rotate(
+        angle: _finalAngle,
+        alignment: widget.alignment,
+        child: Stack(
+          fit: StackFit.passthrough,
+          clipBehavior: Clip.none,
+          children: [
+            widget.child,
+            if (_showRotatingIcon)
+              Positioned.fill(
+                right: -(widget.rotateIndicatorSpacing ?? 50),
+                child: DeferPointer(
+                  child: GestureDetector(
                     /// The following code is retrived from stackoverflow.
                     /// ref: https://stackoverflow.com/a/54098497
                     /// Author: @SEG.Veenstra
@@ -114,10 +101,23 @@ class _RotatableItemState extends State<RotatableItem> {
                         widget.onRotatingEnd!(details, _finalAngle);
                       }
                     },
-                  )
-                : widget.child,
-          ),
-        ],
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Opacity(
+                        opacity: _showRotatingIcon ? 1.0 : 0.0,
+                        child: widget.rotateIndicator ??
+                            const Icon(
+                              Icons.rotate_90_degrees_ccw_outlined,
+                              color: Colors.lightGreen,
+                              size: 50,
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
