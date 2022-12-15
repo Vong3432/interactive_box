@@ -2,6 +2,9 @@
 This changelog uses [semantic versioning](https://semver.org) for documenting changes. 
 
 ## 0.3.2
+[Fixed]
+- Previously will throw error if does not include `onMenuToggled` in `InteractiveBox`.
+
 [Changed]
 - Now the `InteractiveBox` can be rotated by the rotation indicator.
 
