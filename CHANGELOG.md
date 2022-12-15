@@ -1,6 +1,14 @@
 # Changelog
 This changelog uses [semantic versioning](https://semver.org) for documenting changes. 
 
+## 0.3.2
+[Changed]
+- Now the `InteractiveBox` can be rotated by the rotation indicator.
+
+[Added]
+- Add `defer_pointer` dependency. 
+
+
 ## 0.3.1
 [Breaking changes]
 - Adds onMenuToggled callback, previously onTap is acting like a callback whenever menu is toggled.. 
