@@ -39,6 +39,7 @@ class InteractiveBox extends StatefulWidget {
     this.toggleBy = ToggleActionType.onTap,
     this.hideActionIconsWhenInteracting = true,
     this.circularMenuDegree,
+    this.startFromDegree = 0,
     // this.circularMenuSpreadMultiplier = defaultSpreadDistanceMultiplier,
     this.showOverscaleBorder = true,
     this.overScaleBorderDecoration,
@@ -113,6 +114,9 @@ class InteractiveBox extends StatefulWidget {
 
   /// The full degree wanted for the circular menu.
   final double? circularMenuDegree;
+
+  /// The degree of which first action item will be generated until the [circularMenuDegree] in clockwise.
+  final double startFromDegree;
 
   // Distance of the spread distance between the [child] and the circular menu.
   // final double circularMenuSpreadMultiplier;
@@ -350,11 +354,11 @@ class InteractiveBoxState extends State<InteractiveBox> {
       x: _x,
       y: _y,
       degree: widget.circularMenuDegree ?? defaultCircularMenuDegree,
+      startFromDegree: widget.startFromDegree,
       // spreadDistanceMultiplier: widget.circularMenuSpreadMultiplier,
       iconSize: widget.iconSize,
       childWidth: _width,
       childHeight: _height,
-
       showItems: _showItems && !_isPerforming,
       items: _buildActionItems(),
       child: child,

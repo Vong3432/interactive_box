@@ -13,6 +13,7 @@ class MultipleCircularMenu extends StatefulWidget {
     required this.y,
     required this.childWidth,
     required this.childHeight,
+    required this.startFromDegree,
     this.showItems = false,
     this.iconSize = defaultIconSize,
     this.degree = defaultCircularMenuDegree,
@@ -34,6 +35,7 @@ class MultipleCircularMenu extends StatefulWidget {
   final double childHeight;
   final double iconSize;
   final double degree;
+  final double startFromDegree;
   // final double spreadDistanceMultiplier;
   final Widget child;
 
@@ -104,6 +106,7 @@ class _MultipleCircularMenuState extends State<MultipleCircularMenu>
               iconSize: widget.iconSize,
               menuAnimation: menuAnimationController,
               degree: widget.degree,
+              startFromDegree: widget.startFromDegree,
               // spreadDistanceMultiplier: widget.spreadDistanceMultiplier,
             ),
             children: widget.items,
@@ -124,12 +127,14 @@ class MultipleCircularMenuFlowDelegate extends FlowDelegate {
   const MultipleCircularMenuFlowDelegate({
     required this.menuAnimation,
     required this.degree,
+    required this.startFromDegree,
     // required this.spreadDistanceMultiplier,
     required this.iconSize,
   }) : super(repaint: menuAnimation);
 
   final double iconSize;
   final double degree;
+  final double startFromDegree;
   // final double spreadDistanceMultiplier;
   final Animation<double> menuAnimation;
 
@@ -169,7 +174,8 @@ class MultipleCircularMenuFlowDelegate extends FlowDelegate {
 
     for (int i = 0; i < count; i++) {
       final Size size = context.getChildSize(i) ?? Size.zero;
-      final double angle = i * theta;
+      final double angle = (startFromDegree * pi / 180) - i * theta;
+      const double fixRotInRad = 90 * pi / 180;
 
       ///
       /// Calculate coordinate based on angle
@@ -180,12 +186,12 @@ class MultipleCircularMenuFlowDelegate extends FlowDelegate {
       /// where h, k is center point of the circle
       ///
       final double offsetX = (radius - size.width) *
-              cos(angle) *
+              cos(angle - fixRotInRad) *
               // spreadDistanceMultiplier *
               menuAnimation.value +
           centerX;
       final double offsetY = (radius - size.height) *
-              sin(angle) *
+              sin(angle - fixRotInRad) *
               // spreadDistanceMultiplier *
               menuAnimation.value +
           centerY;

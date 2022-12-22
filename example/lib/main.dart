@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _controller = TransformationController();
 
     List<TableModel> dumData = List.generate(
-      100,
+      10,
       (_) => TableModel(
         id: const Uuid().v4(),
         showIcons: false,
@@ -225,6 +225,7 @@ class Content extends StatelessWidget {
               ),
             ),
             // hideActionIconsWhenInteracting: false,
+            startFromDegree: -45,
             initialSize: Size(table.width, table.height),
             initialShowActionIcons: table.showIcons,
             initialPosition: Offset(table.x, table.y),
