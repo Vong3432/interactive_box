@@ -1,9 +1,11 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:interactive_box/interactive_box.dart';
 import 'package:uuid/uuid.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MaterialApp(home: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -12,27 +14,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: "title"),
+    return MyHomePage(
+      title: "title",
+      size: MediaQuery.of(context).size,
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, required this.size});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -44,6 +34,7 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final Size size;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -53,32 +44,25 @@ class _MyHomePageState extends State<MyHomePage> {
   late TransformationController _controller;
   // Just a sample, you may use your own List.
   List<TableModel> tables = [];
+  double _top = 0.0;
+  double _left = 0.0;
+  double _scale = 1.0;
 
   @override
   void initState() {
     super.initState();
-    _controller = TransformationController();
-
-    List<TableModel> dumData = List.generate(
-      10,
-      (_) => TableModel(
-        id: const Uuid().v4(),
-        showIcons: false,
-        width: 300,
-        height: 300,
-        x: 0,
-        y: 0,
-        rotateAngle: 0,
-        image: Image.asset(
-          "assets/table.png",
-          fit: BoxFit.fill,
-        ),
-      ),
-    );
-
-    setState(() {
-      tables.addAll(dumData);
-    });
+    _controller = TransformationController()
+      ..addListener(() {
+        final scale = _controller.value.getMaxScaleOnAxis() - 1 > 0
+            ? _controller.value.getMaxScaleOnAxis()
+            : 1.0;
+        debugPrint(scale.toString());
+        setState(() {
+          _top = 10 * scale;
+          _left = 10 * scale;
+          _scale = scale - 1;
+        });
+      });
   }
 
   @override
@@ -141,42 +125,33 @@ class _MyHomePageState extends State<MyHomePage> {
                         width: screenSize.width,
                         height: screenSize.height,
                         child: GridPaper(
-                          child: Content(
-                              tables: tables,
-                              onAdd: (TableModel table) {
-                                setState(() {
-                                  tables.add(table);
-                                });
-                              },
-                              onToggle: (tappedTable, index) {
-                                setState(() {
-                                  tables[index] = tappedTable;
-                                });
-
-                                for (TableModel table in tables) {
-                                  int index = tables.indexOf(table);
-
-                                  if (index == -1) return;
-
-                                  if (table.id != tappedTable.id &&
-                                      table.showIcons == true) {
-                                    setState(() {
-                                      tables[index] =
-                                          table.copyWith(showIcons: false);
-                                    });
-                                  }
-                                }
-                              },
-                              onUpdate: (TableModel table, int index) {
-                                setState(() {
-                                  tables[index] = table;
-                                });
-                              },
-                              onDel: (int index) {
-                                setState(() {
-                                  tables.removeAt(index);
-                                });
-                              }),
+                          child: Stack(
+                            children: [
+                              ...List.generate(100, (index) {
+                                return Positioned(
+                                  top: 100 + _top,
+                                  left: 100 + _left,
+                                  child: GestureDetector(
+                                    onPanUpdate: (details) {
+                                      debugPrint("UPDATe");
+                                      setState(() {
+                                        _left = details.delta.dx;
+                                        _top = details.delta.dy;
+                                      });
+                                    },
+                                    child: Transform.scale(
+                                      scale: _scale > 0 ? _scale : 0.1,
+                                      child: CustomPaint(
+                                        painter: CircleShapePainter(
+                                          radius: 50,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              })
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -215,7 +190,6 @@ class Content extends StatelessWidget {
       children: [
         ...List.generate(tables.length, (index) {
           TableModel table = tables[index];
-
           return InteractiveBox(
             key: ValueKey(table.id),
             defaultScaleBorderDecoration: BoxDecoration(
@@ -371,5 +345,74 @@ class TableModel {
       rotateAngle: rotateAngle ?? this.rotateAngle,
       image: image ?? this.image,
     );
+  }
+}
+
+class CircleShape extends StatelessWidget {
+  const CircleShape({
+    super.key,
+    required this.radius,
+    this.style,
+    this.child,
+  });
+
+  final double radius;
+  final ShapeStyle? style;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: CircleShapePainter(
+        radius: radius,
+        style: style,
+      ),
+      child: child,
+    );
+  }
+}
+
+class CircleShapePainter extends CustomPainter {
+  final double radius;
+  final ShapeStyle? style;
+
+  CircleShapePainter({
+    required this.radius,
+    this.style,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const double borderWidth = 2.0;
+    final paint = Paint()
+      ..strokeWidth = borderWidth
+      ..color = Colors.red
+      ..style = PaintingStyle.stroke;
+    final fillPaint = Paint()
+      ..color = Colors.yellow
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      Offset(
+        radius,
+        radius,
+      ),
+      radius,
+      fillPaint,
+    );
+
+    canvas.drawCircle(
+      Offset(
+        radius,
+        radius,
+      ),
+      radius,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CircleShapePainter oldDelegate) {
+    return oldDelegate.style != style || oldDelegate.radius != radius;
   }
 }

@@ -221,6 +221,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Rebuild");
     final bool isRotating = _selectedAction == ControlActionType.rotate;
     final bool isScaling = _selectedAction == ControlActionType.scale;
     final bool isOverScale =
