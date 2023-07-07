@@ -1,13 +1,6 @@
 # Changelog
 This changelog uses [semantic versioning](https://semver.org) for documenting changes. 
 
-## 0.3.3
-[Fixed]
-- Fix slow respond whenever menu is toggled that is mentioned in version "0.3.1".
-
-[Docs]
-- Update example code that show optimal way to handle `boxInfo` changed.
-
 ## 0.3.2
 [Fixed]
 - Previously will throw error if does not include `onMenuToggled` in `InteractiveBox`.
