@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
-
+    debugPrint("Rebuild home");
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(18),
@@ -141,42 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         width: screenSize.width,
                         height: screenSize.height,
                         child: GridPaper(
-                          child: Content(
-                              tables: tables,
-                              onAdd: (TableModel table) {
-                                setState(() {
-                                  tables.add(table);
-                                });
-                              },
-                              onToggle: (tappedTable, index) {
-                                setState(() {
-                                  tables[index] = tappedTable;
-                                });
-
-                                for (TableModel table in tables) {
-                                  int index = tables.indexOf(table);
-
-                                  if (index == -1) return;
-
-                                  if (table.id != tappedTable.id &&
-                                      table.showIcons == true) {
-                                    setState(() {
-                                      tables[index] =
-                                          table.copyWith(showIcons: false);
-                                    });
-                                  }
-                                }
-                              },
-                              onUpdate: (TableModel table, int index) {
-                                setState(() {
-                                  tables[index] = table;
-                                });
-                              },
-                              onDel: (int index) {
-                                setState(() {
-                                  tables.removeAt(index);
-                                });
-                              }),
+                          child: Content(tables: tables),
                         ),
                       ),
                     );
@@ -191,21 +156,123 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class Content extends StatelessWidget {
+class Table extends StatelessWidget {
+  const Table({
+    super.key,
+    required this.idx,
+    required this.table,
+    required this.onAdded,
+    required this.onToggled,
+    required this.onDeleted,
+    required this.onUpdated,
+  });
+
+  final TableModel table;
+  final int idx;
+  final void Function(TableModel, int) onUpdated;
+  final void Function(TableModel, int) onToggled;
+  final void Function(int) onDeleted;
+  final void Function(TableModel) onAdded;
+
+  @override
+  Widget build(BuildContext context) {
+    return InteractiveBox(
+      key: ValueKey(table.id),
+      defaultScaleBorderDecoration: BoxDecoration(
+        border: Border.all(
+          width: 5,
+          color: Colors.grey,
+        ),
+      ),
+      // hideActionIconsWhenInteracting: false,
+      initialSize: Size(table.width, table.height),
+      initialShowActionIcons: table.showIcons,
+      initialPosition: Offset(table.x, table.y),
+      initialRotateAngle: table.rotateAngle,
+      circularMenuDegree: 180,
+      iconSize: 40,
+      toggleBy: ToggleActionType.onTap,
+      onInteractiveActionPerforming: (_, __, details) {
+        debugPrint("Drag update details: $details");
+      },
+      onInteractiveActionPerformed: (_, boxInfo, __) {
+        debugPrint("Box info: $boxInfo");
+      },
+      onMenuToggled: (boxInfo) {
+        debugPrint("Toggled menu");
+      },
+      onTap: () => {debugPrint("ON TAPPED")},
+      onDoubleTap: () => {debugPrint("ON DOUBLE TAPPED")},
+      onLongPress: () => {debugPrint("ON LONG PRESS")},
+      onSecondaryTap: () => {debugPrint("ON SECONDARY TAP")},
+      onActionSelected: (actionType, boxInfo) {
+        if (actionType == ControlActionType.copy) {
+          TableModel copiedTable = table.copyWith(
+            id: const Uuid().v4(),
+            width: boxInfo.size.width,
+            height: boxInfo.size.height,
+            rotateAngle: boxInfo.rotateAngle,
+            showIcons: false,
+            x: boxInfo.position.dx + 50,
+            y: boxInfo.position.dy + 50,
+          );
+
+          onToggled(table.copyWith(showIcons: !table.showIcons), idx);
+          onAdded(copiedTable);
+        } else if (actionType == ControlActionType.delete) {
+          onDeleted(idx);
+        }
+      },
+      includedActions: const [
+        ControlActionType.copy,
+        ControlActionType.delete,
+        ControlActionType.move,
+        ControlActionType.rotate,
+        ControlActionType.scale,
+      ],
+      maxSize: const Size(300, 300),
+      shape: Shape.oval,
+      shapeStyle: ShapeStyle(
+        borderWidth: 5,
+        borderColor: Colors.red[200],
+        backgroundColor: Colors.red,
+      ),
+      child: Align(
+        alignment: Alignment.center,
+        child: Container(
+          clipBehavior: Clip.hardEdge,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+          ),
+          child: table.image,
+        ),
+      ),
+    );
+  }
+}
+
+class Content extends StatefulWidget {
   const Content({
     super.key,
     required this.tables,
-    required this.onAdd,
-    required this.onUpdate,
-    required this.onToggle,
-    required this.onDel,
   });
 
   final List<TableModel> tables;
-  final void Function(TableModel table) onAdd;
-  final void Function(TableModel table, int index) onUpdate;
-  final void Function(TableModel table, int index) onToggle;
-  final void Function(int index) onDel;
+
+  @override
+  State<Content> createState() => _ContentState();
+}
+
+class _ContentState extends State<Content> {
+  List<TableModel> tables = [];
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      tables = widget.tables;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -213,114 +280,44 @@ class Content extends StatelessWidget {
       clipBehavior: Clip.none,
       fit: StackFit.passthrough,
       children: [
-        ...List.generate(tables.length, (index) {
-          TableModel table = tables[index];
-
-          return InteractiveBox(
+        ...List.generate(widget.tables.length, (index) {
+          TableModel table = widget.tables[index];
+          return Table(
             key: ValueKey(table.id),
-            defaultScaleBorderDecoration: BoxDecoration(
-              border: Border.all(
-                width: 5,
-                color: Colors.grey,
-              ),
-            ),
-            // hideActionIconsWhenInteracting: false,
-            initialSize: Size(table.width, table.height),
-            initialShowActionIcons: table.showIcons,
-            initialPosition: Offset(table.x, table.y),
-            initialRotateAngle: table.rotateAngle,
-            circularMenuDegree: 180,
-            iconSize: 40,
-            toggleBy: ToggleActionType.onTap,
-            onInteractiveActionPerforming: (_, __, details) {
-              debugPrint("Drag update details: $details");
+            idx: index,
+            table: table,
+            onAdded: (table) {
+              setState(() {
+                tables.add(table);
+              });
             },
-            onInteractiveActionPerformed: (_, boxInfo, __) {
-              /// Copy boxInfo and update to table after performing interactive actions
-              /// so that when we toggle the icons in [onTap] method below, all tables
-              /// will be updated correctly (persist their position, size, rotate angle)...
-              ///
-              ///
-              /// Without this you might see the other tables not updated correctly.
-              /// To demo this problem,
-              /// 1. Comment the code below
-              /// 2. Press "import" button twice
-              /// 3. Drag the second image to another side
-              /// 4. Tap the first image
-              ///
-              /// and you will see the second image is jumped to its original position.
-              ///
-
-              // START comment here if want to see the problem
-              TableModel copiedTable = table.copyWith(
-                width: boxInfo.size.width,
-                height: boxInfo.size.height,
-                rotateAngle: boxInfo.rotateAngle,
-                x: boxInfo.position.dx,
-                y: boxInfo.position.dy,
-              );
-
-              onUpdate(copiedTable, index);
-
-              // END comment here if want to see the problem
+            onDeleted: (index) {
+              setState(() {
+                tables.removeAt(index);
+              });
             },
-            onMenuToggled: (boxInfo) {
-              ///
-              /// Might refer to [onInteractiveActionPerformed]
-              ///
-              // setState(() {
-              TableModel copiedTable = table.copyWith(
-                showIcons: !table.showIcons,
-              );
+            onToggled: (tappedTable, idx) {
+              setState(() {
+                tables[index] = tappedTable;
+              });
 
-              onToggle(copiedTable, index);
-            },
-            onTap: () => {debugPrint("ON TAPPED")},
-            onDoubleTap: () => {debugPrint("ON DOUBLE TAPPED")},
-            onLongPress: () => {debugPrint("ON LONG PRESS")},
-            onSecondaryTap: () => {debugPrint("ON SECONDARY TAP")},
-            onActionSelected: (actionType, boxInfo) {
-              if (actionType == ControlActionType.copy) {
-                TableModel copiedTable = table.copyWith(
-                  id: const Uuid().v4(),
-                  width: boxInfo.size.width,
-                  height: boxInfo.size.height,
-                  rotateAngle: boxInfo.rotateAngle,
-                  showIcons: false,
-                  x: boxInfo.position.dx + 50,
-                  y: boxInfo.position.dy + 50,
-                );
+              for (TableModel table in tables) {
+                int index = tables.indexOf(table);
 
-                onToggle(table.copyWith(showIcons: !table.showIcons), index);
-                onAdd(copiedTable);
-              } else if (actionType == ControlActionType.delete) {
-                onDel(index);
+                if (index == -1) return;
+
+                if (table.id != tappedTable.id && table.showIcons == true) {
+                  setState(() {
+                    tables[index] = table.copyWith(showIcons: false);
+                  });
+                }
               }
             },
-            includedActions: const [
-              ControlActionType.copy,
-              ControlActionType.delete,
-              ControlActionType.move,
-              ControlActionType.rotate,
-              ControlActionType.scale,
-            ],
-            maxSize: const Size(300, 300),
-            shape: Shape.oval,
-            shapeStyle: ShapeStyle(
-              borderWidth: 5,
-              borderColor: Colors.red[200],
-              backgroundColor: Colors.red,
-            ),
-            child: Align(
-              alignment: Alignment.center,
-              child: Container(
-                clipBehavior: Clip.hardEdge,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
-                child: tables[index].image,
-              ),
-            ),
+            onUpdated: (table, index) {
+              setState(() {
+                tables[index] = table;
+              });
+            },
           );
         })
       ],
