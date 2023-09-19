@@ -368,24 +368,33 @@ class InteractiveBoxState extends State<InteractiveBox> {
     child = RepaintBoundary(
       child: SizedBox.expand(
         child: GestureDetector(
-          onDoubleTap: () {
-            if (widget.onDoubleTap != null) {
-              widget.onDoubleTap!();
-            }
-            _toggleMenu(ToggleActionType.onDoubleTap);
-          },
-          onSecondaryTap: () {
-            if (widget.onSecondaryTap != null) {
-              widget.onSecondaryTap!();
-            }
-            _toggleMenu(ToggleActionType.onSecondaryTap);
-          },
-          onLongPress: () {
-            if (widget.onLongPress != null) {
-              widget.onLongPress!();
-            }
-            _toggleMenu(ToggleActionType.onLongPress);
-          },
+          onDoubleTap: widget.toggleBy == ToggleActionType.onDoubleTap &&
+                  widget.onDoubleTap != null
+              ? () {
+                  if (widget.onDoubleTap != null) {
+                    widget.onDoubleTap!();
+                  }
+                  _toggleMenu(ToggleActionType.onDoubleTap);
+                }
+              : null,
+          onSecondaryTap: widget.toggleBy == ToggleActionType.onSecondaryTap &&
+                  widget.onSecondaryTap != null
+              ? () {
+                  if (widget.onSecondaryTap != null) {
+                    widget.onSecondaryTap!();
+                  }
+                  _toggleMenu(ToggleActionType.onSecondaryTap);
+                }
+              : null,
+          onLongPress: widget.toggleBy == ToggleActionType.onLongPress &&
+                  widget.onLongPress != null
+              ? () {
+                  if (widget.onLongPress != null) {
+                    widget.onLongPress!();
+                  }
+                  _toggleMenu(ToggleActionType.onLongPress);
+                }
+              : null,
           onTap: () {
             if (widget.onTap != null) {
               widget.onTap!();
