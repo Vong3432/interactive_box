@@ -37,7 +37,6 @@ class InteractiveBox extends StatefulWidget {
     ],
     this.initialShowActionIcons = false,
     this.toggleBy = ToggleActionType.onTap,
-    this.hideActionIconsWhenInteracting = true,
     this.circularMenuDegree,
     this.startFromDegree = 0,
     // this.circularMenuSpreadMultiplier = defaultSpreadDistanceMultiplier,
@@ -86,15 +85,6 @@ class InteractiveBox extends StatefulWidget {
   final bool initialShowActionIcons;
 
   final ToggleActionType? toggleBy;
-
-  /// Whether the action icons should be hidden when users interacting.
-  ///
-  /// Users-interactive actions:
-  /// - [ControlActionType.rotate]
-  /// - [ControlActionType.scale]
-  /// - [ControlActionType.move]
-  ///
-  final bool hideActionIconsWhenInteracting;
 
   final Offset initialPosition;
   final Size initialSize;
@@ -450,12 +440,9 @@ class InteractiveBoxState extends State<InteractiveBox> {
         _selectedAction = ControlActionType.none;
       });
     }
-
-    if (widget.hideActionIconsWhenInteracting) {
-      setState(() {
-        _isPerforming = perform;
-      });
-    }
+    setState(() {
+      _isPerforming = perform;
+    });
   }
 
   List<Widget> _buildActionItems() {

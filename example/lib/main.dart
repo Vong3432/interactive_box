@@ -182,7 +182,6 @@ class Table extends StatelessWidget {
           color: Colors.grey,
         ),
       ),
-      // hideActionIconsWhenInteracting: false,
       startFromDegree: -45,
       initialSize: Size(table.width, table.height),
       initialShowActionIcons: table.showIcons,
