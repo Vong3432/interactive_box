@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _controller = TransformationController();
 
     List<TableModel> dumData = List.generate(
-      10,
+      100,
       (_) => TableModel(
         id: const Uuid().v4(),
         showIcons: false,
