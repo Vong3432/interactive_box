@@ -89,9 +89,6 @@ InteractiveBox(
       circularMenuDegree: 360,
       circularMenuIconColor: Colors.green,
 
-      // Set to true if you want to hide the menu items when performing interactive actions.
-      hideActionIconsWhenInteracting: true,
-
       // icon size for menu items
       iconSize: 40, 
 
@@ -101,6 +98,9 @@ InteractiveBox(
       rotateIcon: Icon(Icons.abc),
       deleteIcon: Icon(Icons.abc),
       cancelIcon: Icon(Icons.abc),
+
+      // start position
+      startFromDegree: -45,
 )
 ```
 
