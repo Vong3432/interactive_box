@@ -7,7 +7,10 @@ This changelog uses [semantic versioning](https://semver.org) for documenting ch
 
 [Added]
 - Adds ability to configure starting position of circular menu.
-- Automatically hide menu buttons after tap any menu button
+- Automatically hide menu buttons after tap any menu button.
+
+[Fixed]
+- Fix toggleMenu not fired if relevant gesture callback is not passed in parameter
 
 [Docs]
 - Update example code that resolve rotate got conflicted with `SingleChildScrollView` widget.
