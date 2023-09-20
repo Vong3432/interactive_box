@@ -1,6 +1,20 @@
 # Changelog
 This changelog uses [semantic versioning](https://semver.org) for documenting changes. 
 
+## 0.4.0
+[Breaking changes]
+- ⚠️ Remove `hideActionIconsWhenInteracting` feature, since will now automatically hide menu by automatically.
+
+[Added]
+- Adds ability to configure starting position of circular menu.
+- Automatically hide menu buttons after tap any menu button.
+
+[Fixed]
+- Fix toggleMenu not fired if relevant gesture callback is not passed in parameter
+
+[Docs]
+- Update example code that resolve rotate got conflicted with `SingleChildScrollView` widget.
+
 ## 0.3.3
 [Fixed]
 - Fix slow respond whenever menu is toggled that is mentioned in version "0.3.1".

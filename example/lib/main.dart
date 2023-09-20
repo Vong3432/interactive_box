@@ -89,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         padding: const EdgeInsets.all(18),
         child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
           child: Column(
             children: [
               Align(
@@ -126,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     screenSize.height,
                   ),
                 ),
-
+        
                 ///
                 /// Create infinite screen.
                 /// ref: https://stackoverflow.com/a/70915030
@@ -184,7 +185,7 @@ class Table extends StatelessWidget {
           color: Colors.grey,
         ),
       ),
-      // hideActionIconsWhenInteracting: false,
+      startFromDegree: -45,
       initialSize: Size(table.width, table.height),
       initialShowActionIcons: table.showIcons,
       initialPosition: Offset(table.x, table.y),

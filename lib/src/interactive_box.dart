@@ -37,8 +37,8 @@ class InteractiveBox extends StatefulWidget {
     ],
     this.initialShowActionIcons = false,
     this.toggleBy = ToggleActionType.onTap,
-    this.hideActionIconsWhenInteracting = true,
     this.circularMenuDegree,
+    this.startFromDegree = 0,
     // this.circularMenuSpreadMultiplier = defaultSpreadDistanceMultiplier,
     this.showOverscaleBorder = true,
     this.overScaleBorderDecoration,
@@ -86,15 +86,6 @@ class InteractiveBox extends StatefulWidget {
 
   final ToggleActionType? toggleBy;
 
-  /// Whether the action icons should be hidden when users interacting.
-  ///
-  /// Users-interactive actions:
-  /// - [ControlActionType.rotate]
-  /// - [ControlActionType.scale]
-  /// - [ControlActionType.move]
-  ///
-  final bool hideActionIconsWhenInteracting;
-
   final Offset initialPosition;
   final Size initialSize;
 
@@ -113,6 +104,9 @@ class InteractiveBox extends StatefulWidget {
 
   /// The full degree wanted for the circular menu.
   final double? circularMenuDegree;
+
+  /// The degree of which first action item will be generated until the [circularMenuDegree] in clockwise.
+  final double startFromDegree;
 
   // Distance of the spread distance between the [child] and the circular menu.
   // final double circularMenuSpreadMultiplier;
@@ -193,25 +187,35 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
   @override
   void didUpdateWidget(InteractiveBox oldWidget) {
-    super.didUpdateWidget(oldWidget);
+    bool didUpdated = false;
 
     if (oldWidget.initialShowActionIcons != widget.initialShowActionIcons) {
       _showItems = widget.initialShowActionIcons;
+      didUpdated = true;
     }
     if (oldWidget.initialSize.width != widget.initialSize.width) {
       _width = widget.initialSize.width;
+      didUpdated = true;
     }
     if (oldWidget.initialSize.height != widget.initialSize.height) {
       _height = widget.initialSize.height;
+      didUpdated = true;
     }
     if (oldWidget.initialPosition.dx != widget.initialPosition.dx) {
       _x = widget.initialPosition.dx;
+      didUpdated = true;
     }
     if (oldWidget.initialPosition.dy != widget.initialPosition.dy) {
       _y = widget.initialPosition.dy;
+      didUpdated = true;
     }
     if (oldWidget.initialRotateAngle != widget.initialRotateAngle) {
       _rotateAngle = widget.initialRotateAngle;
+      didUpdated = true;
+    }
+
+    if (didUpdated) {
+      super.didUpdateWidget(oldWidget);
     }
   }
 
@@ -342,6 +346,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
         _rotateAngle = finalAngle;
         _notifyParentAfterInteracted(details);
         _toggleIsPerforming(false);
+        _toggleShowItems(true);
       },
       child: child,
     );
@@ -350,11 +355,11 @@ class InteractiveBoxState extends State<InteractiveBox> {
       x: _x,
       y: _y,
       degree: widget.circularMenuDegree ?? defaultCircularMenuDegree,
+      startFromDegree: widget.startFromDegree,
       // spreadDistanceMultiplier: widget.circularMenuSpreadMultiplier,
       iconSize: widget.iconSize,
       childWidth: _width,
       childHeight: _height,
-
       showItems: _showItems && !_isPerforming,
       items: _buildActionItems(),
       child: child,
@@ -364,7 +369,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
     child = RepaintBoundary(
       child: SizedBox.expand(
         child: GestureDetector(
-          onDoubleTap: widget.toggleBy == ToggleActionType.onDoubleTap &&
+          onDoubleTap: widget.toggleBy == ToggleActionType.onDoubleTap ||
                   widget.onDoubleTap != null
               ? () {
                   if (widget.onDoubleTap != null) {
@@ -373,7 +378,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
                   _toggleMenu(ToggleActionType.onDoubleTap);
                 }
               : null,
-          onSecondaryTap: widget.toggleBy == ToggleActionType.onSecondaryTap &&
+          onSecondaryTap: widget.toggleBy == ToggleActionType.onSecondaryTap ||
                   widget.onSecondaryTap != null
               ? () {
                   if (widget.onSecondaryTap != null) {
@@ -382,7 +387,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
                   _toggleMenu(ToggleActionType.onSecondaryTap);
                 }
               : null,
-          onLongPress: widget.toggleBy == ToggleActionType.onLongPress &&
+          onLongPress: widget.toggleBy == ToggleActionType.onLongPress ||
                   widget.onLongPress != null
               ? () {
                   if (widget.onLongPress != null) {
@@ -429,14 +434,16 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
   void _toggleMenu(ToggleActionType toggleActionType) {
     if (!_shouldThisGestureToggleActions(toggleActionType)) return;
-
-    setState(() {
-      _showItems = !_showItems;
-    });
-
+    _toggleShowItems(!_showItems);
     if (widget.onMenuToggled != null) {
       widget.onMenuToggled!(_getCurrentBoxInfo);
     }
+  }
+
+  void _toggleShowItems(bool show) {
+    setState(() {
+      _showItems = show;
+    });
   }
 
   void _toggleIsPerforming(bool perform) {
@@ -446,12 +453,9 @@ class InteractiveBoxState extends State<InteractiveBox> {
         _selectedAction = ControlActionType.none;
       });
     }
-
-    if (widget.hideActionIconsWhenInteracting) {
-      setState(() {
-        _isPerforming = perform;
-      });
-    }
+    setState(() {
+      _isPerforming = perform;
+    });
   }
 
   List<Widget> _buildActionItems() {
@@ -466,14 +470,11 @@ class InteractiveBoxState extends State<InteractiveBox> {
       unique.length,
       (index) {
         ControlActionType actionType = unique[index];
-
-        bool isInteractiveAction = true;
         Widget? icon;
 
         switch (actionType) {
           case ControlActionType.copy:
             icon = widget.copyIcon;
-            isInteractiveAction = false;
             break;
           case ControlActionType.scale:
             icon = widget.scaleIcon;
@@ -482,11 +483,9 @@ class InteractiveBoxState extends State<InteractiveBox> {
             icon = widget.rotateIcon;
             break;
           case ControlActionType.delete:
-            isInteractiveAction = false;
             icon = widget.deleteIcon;
             break;
           case ControlActionType.none:
-            isInteractiveAction = false;
             icon = widget.cancelIcon;
             break;
           case ControlActionType.move:
@@ -508,14 +507,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
               widget.onActionSelected!(actionType, info);
             }
 
-            if (!isInteractiveAction) {
-              // Close circular menu items for non-interactive action
-              // and reset the current action to none.
-              setState(() {
-                _showItems = false;
-              });
-              _toggleIsPerforming(false);
-            }
+            _toggleShowItems(false);
           },
           actionType: actionType,
         );
@@ -544,10 +536,8 @@ class InteractiveBoxState extends State<InteractiveBox> {
     updatedXPosition += (update.delta.dx);
     updatedYPosition += (update.delta.dy);
 
-    setState(() {
-      _x = updatedXPosition;
-      _y = updatedYPosition;
-    });
+    _x = updatedXPosition;
+    _y = updatedYPosition;
 
     _notifyParentWhenInteracting(update);
   }
@@ -560,6 +550,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
 
     _notifyParentAfterInteracted(details);
     _toggleIsPerforming(false);
+    _toggleShowItems(true);
   }
 
   void _onScaling(
@@ -608,12 +599,10 @@ class InteractiveBoxState extends State<InteractiveBox> {
       updatedHeight = widget.maxSize!.height;
     }
 
-    setState(() {
-      _width = updatedWidth;
-      _height = updatedHeight;
-      _x = updatedXPosition;
-      _y = updatedYPosition;
-    });
+    _width = updatedWidth;
+    _height = updatedHeight;
+    _x = updatedXPosition;
+    _y = updatedYPosition;
 
     _notifyParentWhenInteracting(update);
   }
