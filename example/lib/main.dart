@@ -88,66 +88,69 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(18),
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      tables.add(
-                        TableModel(
-                          id: const Uuid().v4(),
-                          showIcons: false,
-                          width: 300,
-                          height: 300,
-                          x: 0,
-                          y: 0,
-                          rotateAngle: 0,
-                          image: Image.asset(
-                            "assets/table.png",
-                            fit: BoxFit.fill,
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        tables.add(
+                          TableModel(
+                            id: const Uuid().v4(),
+                            showIcons: false,
+                            width: 300,
+                            height: 300,
+                            x: 0,
+                            y: 0,
+                            rotateAngle: 0,
+                            image: Image.asset(
+                              "assets/table.png",
+                              fit: BoxFit.fill,
+                            ),
                           ),
+                        );
+                      });
+                    },
+                    child: const Text("Import"),
+                  ),
+                ),
+              ),
+              ConstrainedBox(
+                constraints: BoxConstraints.loose(
+                  Size(
+                    screenSize.width,
+                    screenSize.height,
+                  ),
+                ),
+        
+                ///
+                /// Create infinite screen.
+                /// ref: https://stackoverflow.com/a/70915030
+                ///
+                /// Author: @Tor-Martin Holen
+                ///
+                child: InteractiveViewer.builder(
+                  transformationController: _controller,
+                  builder: (context, quad) {
+                    return Center(
+                      child: SizedBox(
+                        width: screenSize.width,
+                        height: screenSize.height,
+                        child: GridPaper(
+                          child: Content(tables: tables),
                         ),
-                      );
-                    });
-                  },
-                  child: const Text("Import"),
-                ),
-              ),
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints.loose(
-                Size(
-                  screenSize.width,
-                  screenSize.height,
-                ),
-              ),
-
-              ///
-              /// Create infinite screen.
-              /// ref: https://stackoverflow.com/a/70915030
-              ///
-              /// Author: @Tor-Martin Holen
-              ///
-              child: InteractiveViewer.builder(
-                transformationController: _controller,
-                builder: (context, quad) {
-                  return Center(
-                    child: SizedBox(
-                      width: screenSize.width,
-                      height: screenSize.height,
-                      child: GridPaper(
-                        child: Content(tables: tables),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
