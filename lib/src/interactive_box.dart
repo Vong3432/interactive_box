@@ -369,7 +369,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
     child = RepaintBoundary(
       child: SizedBox.expand(
         child: GestureDetector(
-          onDoubleTap: widget.toggleBy == ToggleActionType.onDoubleTap &&
+          onDoubleTap: widget.toggleBy == ToggleActionType.onDoubleTap ||
                   widget.onDoubleTap != null
               ? () {
                   if (widget.onDoubleTap != null) {
@@ -378,7 +378,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
                   _toggleMenu(ToggleActionType.onDoubleTap);
                 }
               : null,
-          onSecondaryTap: widget.toggleBy == ToggleActionType.onSecondaryTap &&
+          onSecondaryTap: widget.toggleBy == ToggleActionType.onSecondaryTap ||
                   widget.onSecondaryTap != null
               ? () {
                   if (widget.onSecondaryTap != null) {
@@ -387,7 +387,7 @@ class InteractiveBoxState extends State<InteractiveBox> {
                   _toggleMenu(ToggleActionType.onSecondaryTap);
                 }
               : null,
-          onLongPress: widget.toggleBy == ToggleActionType.onLongPress &&
+          onLongPress: widget.toggleBy == ToggleActionType.onLongPress ||
                   widget.onLongPress != null
               ? () {
                   if (widget.onLongPress != null) {
